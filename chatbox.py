@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv("GROQ_API_KEY")
+api_key = st.secrets["GROQ"]["API_KEY"]
 
 if not api_key:
     raise ValueError("API key not found. Please set the GROQ_API_KEY in the .env file.")
