@@ -37,7 +37,7 @@ if st.button("Send"):
         # Get bot response
         chat_completion = client.chat.completions.create(
             messages=messages,
-            model="gemma2-9b-it"
+            model="llama-3.3-70b-versatile"
         )
 
         bot_response = chat_completion.choices[0].message.content
