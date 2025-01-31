@@ -1,6 +1,7 @@
 import streamlit as st
 from groq import Groq
 import os
+import time  # Import time module for measuring response time
 
 # ======================
 #  CONFIGURATION
@@ -143,6 +144,8 @@ def main():
             with st.chat_message("user", avatar="👤"):
                 st.markdown(prompt)
 
+            start_time = time.time()  # Start measuring response time
+
             with st.spinner("🧠 Processing..."):
                 response = client.chat.completions.create(
                     messages=st.session_state.messages[-5:],
@@ -163,9 +166,12 @@ def main():
                         </div>
                         """, unsafe_allow_html=True)
 
+                end_time = time.time()  # End measuring response time
+                response_time = end_time - start_time  # Calculate response time
+
                 st.session_state.messages.append({
                     "role": "assistant",
-                    "content": "".join(full_response)
+                    "content": "".join(full_response) + f"\n\n_Response time: {response_time:.2f} seconds_"
                 })
 
         except Exception as e:
