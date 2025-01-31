@@ -10,7 +10,7 @@ EMAIL = "waqaskhosa99@gmail.com"
 LINKEDIN = "https://www.linkedin.com/in/waqas-baloch"
 GITHUB = "https://github.com/Waqas-Baloch99/AI-Chatbox"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
-MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama2-70b-4096"]  # Available models
+MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama-3.3-70b-versatile"]  # Available models
 
 # ======================
 #  CUSTOM CSS
