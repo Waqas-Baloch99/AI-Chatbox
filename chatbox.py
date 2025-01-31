@@ -62,17 +62,21 @@ def render_sidebar():
         st.markdown(f"""
         <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
             <strong style="color: #4ecca3;">{DEVELOPER}</strong><br>
-            📧 {EMAIL}<br>
-            [![LinkedIn](https://img.shields.io/badge/Profile-blue?logo=linkedin)]({LINKEDIN})
-            [![GitHub](https://img.shields.io/badge/Source_Code-black?logo=github)]({GITHUB})
+            [![Email](https://img.shields.io/badge/Email-waqaskhosa99@gmail.com-blue?logo=gmail&logoColor=white)](mailto:{EMAIL})
         </div>
         """, unsafe_allow_html=True)
+        
+        # Social badges with proper spacing
+        st.markdown("""
+        <div style="margin-top: 1rem;">
+            [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&logoColor=white)]({})
+            [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github&logoColor=white)]({})
+        </div>
+        """.format(LINKEDIN, GITHUB), unsafe_allow_html=True)
 
         st.divider()
         st.header("⚙️ Settings")
         return st.selectbox("Select AI Model", MODEL_OPTIONS, index=0)
-
-# ======================
 #  MAIN CHAT INTERFACE
 # ======================
 def main():
