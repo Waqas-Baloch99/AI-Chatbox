@@ -9,7 +9,7 @@ EMAIL = "waqaskhosa99@gmail.com"
 LINKEDIN = "https://www.linkedin.com/in/waqas-baloch"
 GITHUB = "https://github.com/Waqas-Baloch99/AI-Chatbox"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
-MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama-3.3-70b-versatile"]
+MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama2-70b-4096"]  # Fixed model name
 
 # ======================
 #  CUSTOM CSS
@@ -31,6 +31,7 @@ def inject_custom_css():
         .stChatMessage {{
             max-width: 600px;
             margin: 1rem auto !important;
+            transform: translateX(5%);  /* Fine-tuned centering */
         }}
 
         /* Bot Avatar Positioning */
@@ -38,13 +39,12 @@ def inject_custom_css():
             display: flex;
             align-items: center;
             flex-direction: row-reverse;
+            gap: 1.5rem;
             padding: 1rem 0;
         }}
 
         .assistant-avatar {{
-            position: relative;
-            right: 0;
-            margin-left: 1.5rem;
+            flex-shrink: 0;
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -71,23 +71,22 @@ def inject_custom_css():
             .assistant-avatar {{
                 width: 45px;
                 height: 45px;
-                margin-left: 1rem;
             }}
             .main {{ padding: 1rem !important; }}
         }}
-
-        /* Loading Animation */
-        @keyframes pulse {{
-            0% {{ opacity: 1; }}
-            50% {{ opacity: 0.5; }}
-            100% {{ opacity: 1; }}
-        }}
-        .stSpinner > div {{
-            animation: pulse 1.5s infinite;
-            border-color: #4ecca3 !important;
-        }}
     </style>
     """, unsafe_allow_html=True)
+
+# ======================
+#  ERROR HANDLING IMPROVEMENTS
+# ======================
+def handle_api_error(e):
+    error_message = str(e)
+    if "404" in error_message:
+        return "🔍 Model not found. Please check the model selection!"
+    elif "401" in error_message:
+        return "🔑 Authentication failed. Verify your API key!"
+    return f"⚠️ Error: {error_message}"
 
 # ======================
 #  GROQ CLIENT SETUP
@@ -99,27 +98,8 @@ def initialize_groq_client():
         st.error("🔑 API Key Error! Configure secrets in `.streamlit/secrets.toml`")
         st.stop()
     except Exception as e:
-        st.error(f"🚨 Initialization Error: {str(e)}")
+        st.error(handle_api_error(e))
         st.stop()
-
-# ======================
-#  SIDEBAR COMPONENT
-# ======================
-def render_sidebar():
-    with st.sidebar:
-        st.title("🧑💻 Developer Info")
-        st.markdown(f"""
-        <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
-            <strong style="color: #4ecca3;">{DEVELOPER}</strong><br>
-            📧 {EMAIL}<br>
-            [![LinkedIn](https://img.shields.io/badge/Profile-blue?logo=linkedin)]({LINKEDIN})
-            [![GitHub](https://img.shields.io/badge/Source_Code-black?logo=github)]({GITHUB})
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.divider()
-        st.header("⚙️ Settings")
-        return st.selectbox("Select AI Model", MODEL_OPTIONS, index=0)
 
 # ======================
 #  CHAT INTERFACE
@@ -145,6 +125,7 @@ def main():
             "content": "Hello! I'm your AI assistant. How can I help you today? 🌟"
         }]
 
+    # Display chat messages
     for message in st.session_state.messages:
         if message["role"] == "assistant":
             with st.chat_message("assistant"):
@@ -161,6 +142,7 @@ def main():
     if prompt := st.chat_input("Type your message..."):
         try:
             st.session_state.messages.append({"role": "user", "content": prompt})
+            
             with st.chat_message("user", avatar="👤"):
                 st.markdown(prompt)
 
@@ -190,7 +172,7 @@ def main():
                 })
 
         except Exception as e:
-            st.error(f"⚠️ Error: {str(e)}")
+            st.error(handle_api_error(e))
             st.session_state.messages.pop()
 
 if __name__ == "__main__":
