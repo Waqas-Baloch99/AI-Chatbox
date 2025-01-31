@@ -2,9 +2,6 @@ import streamlit as st
 from groq import Groq
 import time
 
-# ======================
-#  CONFIGURATION
-# ======================
 DEVELOPER = "Waqas Baloch"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
 MODEL_INFO = {
@@ -13,9 +10,6 @@ MODEL_INFO = {
     "deepseek-r1-distill-llama-70b": "Distilled version optimized for speed"
 }
 
-# ======================
-#  CUSTOM CSS
-# ======================
 def inject_custom_css():
     st.markdown(f"""
     <style>
@@ -82,9 +76,6 @@ def inject_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
-# ======================
-#  CHAT INTERFACE
-# ======================
 def main():
     st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
     inject_custom_css()
@@ -92,13 +83,11 @@ def main():
     st.title("💬 Groq AI Chatbox")
     st.caption("Real-time AI conversations powered by Groq's LPU technology")
 
-    # Initialize session state
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
 
-    # Sidebar components
     with st.sidebar:
         st.title("⚙️ Settings")
         selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
@@ -115,7 +104,7 @@ def main():
             Developed by {DEVELOPER}
             <br>
             <a href="mailto:waqaskhos99@gmail.com">
-                <img src="https://img.icons8.com/color/48/000000/email-open.png" alt="Email Icon"/> waqaskhos99@gmail.com
+                <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email Icon"/> waqaskhos99@gmail.com
             </a>
             <br>
             <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
@@ -128,7 +117,6 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    # Display chat messages
     assistant_idx = 0
     for message in st.session_state.messages:
         if message["role"] == "assistant":
@@ -148,15 +136,12 @@ def main():
             with st.chat_message("user", avatar="👤"):
                 st.markdown(message["content"])
 
-    # Handle user input
     if prompt := st.chat_input("Type your message..."):
         try:
             client = Groq(api_key=st.secrets.GROQ.API_KEY)
             
-            # Add user message
             st.session_state.messages.append({"role": "user", "content": prompt})
             
-            # Generate AI response
             start_time = time.time()
             response = client.chat.completions.create(
                 model=selected_model,
@@ -166,7 +151,6 @@ def main():
                 stream=True
             )
 
-            # Stream response
             full_response = []
             message_placeholder = st.empty()
             for chunk in response:
@@ -182,7 +166,6 @@ def main():
                         </div>
                     """, unsafe_allow_html=True)
 
-            # Store final response and timing
             response_time = time.time() - start_time
             st.session_state.messages.append({"role": "assistant", "content": "".join(full_response).strip()})
             st.session_state.response_times.append(response_time)
