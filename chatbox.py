@@ -114,9 +114,17 @@ def main():
         <div style='text-align:center;color:#4ecca3;'>
             Developed by {DEVELOPER}
             <br>
-            <a href="mailto:waqaskhos99@gmail.com">waqaskhos99@gmail.com</a>
+            <a href="mailto:waqaskhos99@gmail.com">
+                <img src="https://img.icons8.com/color/48/000000/email-open.png" alt="Email Icon"/> waqaskhos99@gmail.com
+            </a>
             <br>
-            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">GitHub Repository</a>
+            <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
+                <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn Icon"/> LinkedIn
+            </a>
+            <br>
+            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
+                <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub Icon"/> GitHub Repository
+            </a>
         </div>
         """, unsafe_allow_html=True)
 
