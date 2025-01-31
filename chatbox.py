@@ -31,10 +31,13 @@ def inject_custom_css():
         @keyframes float { 0%, 100% { transform: translateY(0px); } 
                           50% { transform: translateY(-20px); } }
         .message-content { background: rgba(255, 255, 255, 0.05); padding: 1.2rem; 
-                          border-radius: 15px; flex-grow: 1; backdrop-filter: blur(10px); }
+                          border-radius: 15px; flex-grow: 1; backdrop-filter: blur(10px); position: relative; }
         @media (max-width: 768px) { .assistant-avatar { width: 45px; height: 45px; } 
                                    .main { padding: 1rem !important; } }
+        .response-time { position: absolute; bottom: -20px; right: 15px; font-size: 0.9rem; color: #4ecca3; }
         .social-badges { margin: 1rem 0; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; }
+        .developer-info { padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 1.5rem; 
+                          text-align: center; color: #4ecca3; font-size: 1.5rem; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -72,9 +75,8 @@ def render_sidebar():
         
         # Developer Card
         st.markdown(f"""
-        <div style="padding: 1rem; background: rgba(255,255,255,0.05); 
-                    border-radius: 10px; margin-bottom: 1.5rem;">
-            <strong style="color: #4ecca3; font-size: 1.1rem;">{DEVELOPER}</strong>
+        <div class="developer-info">
+            {DEVELOPER}
         </div>
         """, unsafe_allow_html=True)
 
@@ -171,8 +173,17 @@ def main():
 
                 st.session_state.messages.append({
                     "role": "assistant",
-                    "content": "".join(full_response) + f"\n\n_Response time: {response_time:.2f} seconds_"
+                    "content": "".join(full_response)
                 })
+
+                with st.chat_message("assistant"):
+                    st.markdown(f"""
+                    <div class="assistant-message">
+                        <img src="{BOT_AVATAR}" class="assistant-avatar">
+                        <div class="message-content">{''.join(full_response)}</div>
+                        <div class="response-time">Response time: {response_time:.2f} seconds</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(handle_api_error(e))
