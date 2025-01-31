@@ -9,7 +9,7 @@ EMAIL = "waqaskhosa99@gmail.com"
 LINKEDIN = "https://www.linkedin.com/in/waqas-baloch"
 GITHUB = "https://github.com/Waqas-Baloch99/AI-Chatbox"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
-MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama2-70b-4096"]
+MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama-3.3-70b-versatile"]
 
 # ======================
 #  CUSTOM CSS
@@ -23,31 +23,47 @@ def inject_custom_css():
             color: #e6e6e6;
             max-width: 800px;
             margin: 0 auto;
-            padding: 1rem !important;
+            padding: 2rem !important;
             font-family: 'Segoe UI', sans-serif;
         }}
 
-        /* Bot Avatar Animation */
-        @keyframes float {{
-            0% {{ transform: translateY(0px) rotate(0deg); }}
-            50% {{ transform: translateY(-20px) rotate(5deg); }}
-            100% {{ transform: translateY(0px) rotate(0deg); }}
+        /* Chat Container Centering */
+        .stChatMessage {{
+            max-width: 600px;
+            margin: 1rem auto !important;
+        }}
+
+        /* Bot Avatar Positioning */
+        .assistant-message {{
+            display: flex;
+            align-items: center;
+            flex-direction: row-reverse;
+            padding: 1rem 0;
         }}
 
         .assistant-avatar {{
-            animation: float 3s ease-in-out infinite;
-            margin-right: 1.5rem;
+            position: relative;
+            right: 0;
+            margin-left: 1.5rem;
             width: 60px;
             height: 60px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
+            animation: float 3s ease-in-out infinite;
         }}
 
-        /* Message Alignment */
-        .assistant-message {{
-            display: flex;
-            align-items: center;
-            padding: 1rem 0;
+        @keyframes float {{
+            0%, 100% {{ transform: translateY(0px); }}
+            50% {{ transform: translateY(-20px); }}
+        }}
+
+        /* Message Content Styling */
+        .message-content {{
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 15px;
+            flex-grow: 1;
+            backdrop-filter: blur(10px);
         }}
 
         /* Mobile Responsive */
@@ -55,9 +71,9 @@ def inject_custom_css():
             .assistant-avatar {{
                 width: 45px;
                 height: 45px;
-                margin-right: 1rem;
+                margin-left: 1rem;
             }}
-            .main {{ padding: 0.5rem !important; }}
+            .main {{ padding: 1rem !important; }}
         }}
 
         /* Loading Animation */
@@ -69,15 +85,6 @@ def inject_custom_css():
         .stSpinner > div {{
             animation: pulse 1.5s infinite;
             border-color: #4ecca3 !important;
-        }}
-
-        /* Message Transition */
-        .stChatMessage {{
-            transition: all 0.3s ease;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.05) !important;
-            backdrop-filter: blur(10px);
-            margin: 1rem 0;
         }}
     </style>
     """, unsafe_allow_html=True)
@@ -105,7 +112,7 @@ def render_sidebar():
         <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
             <strong style="color: #4ecca3;">{DEVELOPER}</strong><br>
             📧 {EMAIL}<br>
-            [![LinkedIn](https://img.shields.io/badge/Profile-blue?logo=linkedin)]({LINKEDIN})<br>
+            [![LinkedIn](https://img.shields.io/badge/Profile-blue?logo=linkedin)]({LINKEDIN})
             [![GitHub](https://img.shields.io/badge/Source_Code-black?logo=github)]({GITHUB})
         </div>
         """, unsafe_allow_html=True)
@@ -144,7 +151,7 @@ def main():
                 st.markdown(f"""
                 <div class="assistant-message">
                     <img src="{BOT_AVATAR}" class="assistant-avatar">
-                    <div>{message["content"]}</div>
+                    <div class="message-content">{message["content"]}</div>
                 </div>
                 """, unsafe_allow_html=True)
         else:
@@ -164,7 +171,7 @@ def main():
                     temperature=0.7,
                     stream=True
                 )
-                
+
                 full_response = []
                 message_container = st.empty()
                 for chunk in response:
@@ -173,10 +180,10 @@ def main():
                         message_container.markdown(f"""
                         <div class="assistant-message">
                             <img src="{BOT_AVATAR}" class="assistant-avatar">
-                            <div>{"".join(full_response)}</div>
+                            <div class="message-content">{"".join(full_response)}</div>
                         </div>
                         """, unsafe_allow_html=True)
-                
+
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": "".join(full_response)
