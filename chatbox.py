@@ -174,6 +174,74 @@ def main():
         except Exception as e:
             st.error(handle_api_error(e))
             st.session_state.messages.pop()
+```python
+# ======================
+#  SIDEBAR COMPONENT (ADD THIS SECTION IF MISSING)
+# ======================
+def render_sidebar():
+    with st.sidebar:
+        st.title("🧑💻 Developer Info")
+        st.markdown(f"""
+        <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
+            <strong style="color: #4ecca3;">{DEVELOPER}</strong><br>
+            📧 {EMAIL}<br>
+            [![LinkedIn](https://img.shields.io/badge/Profile-blue?logo=linkedin)]({LINKEDIN})
+            [![GitHub](https://img.shields.io/badge/Source_Code-black?logo=github)]({GITHUB})
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.divider()
+        st.header("⚙️ Settings")
+        return st.selectbox("Select AI Model", MODEL_OPTIONS, index=0)
+
+# ======================
+#  MAIN FUNCTION (ENSURE THIS COMES AFTER ALL FUNCTION DEFINITIONS)
+# ======================
+def main():
+    st.set_page_config(
+        page_title="Groq AI Chatbox",
+        page_icon="🤖",
+        layout="centered",
+        initial_sidebar_state="auto"
+    )
+    inject_custom_css()
+    
+    # Rest of main() code...
+```
+
+Key fixes:
+1. **Function Order**: Ensure `render_sidebar()` is defined **before** the `main()` function
+2. **Component Structure**: Verify the sidebar contains valid Streamlit components
+3. **Error Prevention**:
+   ```python
+   # Add this at the start of main() for safety
+   if 'messages' not in st.session_state:
+       st.session_state.messages = []
+   ```
+
+Common causes for this error:
+1. Missing function definition
+2. Incorrect function name spelling
+3. Functions called before they're defined
+4. Corrupted indentation in Python code
+
+If the error persists:
+1. Check your Python version (requires 3.8+)
+2. Verify all required packages are installed:
+   ```bash
+   pip install streamlit groq python-dotenv
+   ```
+3. Ensure your Streamlit secrets file (`.streamlit/secrets.toml`) contains:
+   ```toml
+   [GROQ]
+   API_KEY = "your_actual_api_key_here"
+   ```
+
+The chat interface should now load properly with:
+- Functional sidebar with developer info
+- Working model selection
+- Proper error handling
+- Centered chat messages with animated avatar
 
 if __name__ == "__main__":
     main()
