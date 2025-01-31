@@ -19,25 +19,27 @@ MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama-3.3-70b-versatile", "deepseek-r1-d
 def inject_custom_css():
     st.markdown("""
     <style>
-        .main { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #e6e6e6; 
-                max-width: 800px; margin: 0 auto; padding: 2rem !important; 
+        .main { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #e6e6e6;
+                max-width: 800px; margin: 0 auto; padding: 2rem !important;
                 font-family: 'Segoe UI', sans-serif; }
         .stChatMessage { max-width: 600px; margin: 1rem auto !important; transform: translateX(5%); }
-        .assistant-message { display: flex; align-items: center; flex-direction: row-reverse; 
+        .assistant-message { display: flex; align-items: center; flex-direction: row-reverse;
                             gap: 1.5rem; padding: 1rem 0; position: relative; }
-        .assistant-avatar { flex-shrink: 0; width: 60px; height: 60px; border-radius: 50%; 
-                           box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3); 
+        .assistant-avatar { flex-shrink: 0; width: 60px; height: 60px; border-radius: 50%;
+                           box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
                            animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 
+        @keyframes float { 0%, 100% { transform: translateY(0px); }
                           50% { transform: translateY(-20px); } }
-        .message-content { background: rgba(255, 255, 255, 0.05); padding: 1.2rem; 
+        .message-content { background: rgba(255, 255, 255, 0.05); padding: 1.2rem;
                           border-radius: 15px; flex-grow: 1; backdrop-filter: blur(10px); }
-        .message-content pre { background: rgba(0, 0, 0, 0.1); padding: 1rem; border-radius: 10px; } /* Ensure code blocks are properly formatted */
+        .message-content pre { background: rgba(0, 0, 0, 0.1); padding: 1rem; border-radius: 10px; }
         .response-time { position: absolute; bottom: -20px; right: 15px; font-size: 0.9rem; color: #4ecca3; }
-        @media (max-width: 768px) { .assistant-avatar { width: 45px; height: 45px; } 
-                                   .main { padding: 1rem !important; } }
+        @media (max-width: 768px) { .assistant-avatar { width: 45px; height: 45px; }
+                                   .main { padding: 1rem !important; }
+                                   .assistant-message { flex-direction: column; align-items: flex-start; }
+                                   .response-time { position: static; margin-top: 10px; } }
         .social-badges { margin: 1rem 0; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; }
-        .developer-info { padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 1.5rem; 
+        .developer-info { padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 1.5rem;
                           text-align: center; color: #4ecca3; font-size: 1.5rem; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
