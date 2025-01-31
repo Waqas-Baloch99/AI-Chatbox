@@ -39,6 +39,8 @@ def inject_custom_css():
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             margin: 1rem 0;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
         }}
         
         .assistant-avatar {{
@@ -46,6 +48,7 @@ def inject_custom_css():
             height: 50px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
+            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
         }}
         
         .response-time {{
@@ -58,6 +61,23 @@ def inject_custom_css():
         @media (max-width: 768px) {{
             .assistant-avatar {{ width: 40px; height: 40px; }}
             .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
+        }}
+        
+        @keyframes fadeIn {{
+            from {{ opacity: 0; }}
+            to {{ opacity: 1; }}
+        }}
+        
+        @keyframes bounceIn {{
+            0% {{ transform: scale(0.5); opacity: 0; }}
+            50% {{ transform: scale(1.05); opacity: 0.7; }}
+            70% {{ transform: scale(0.95); opacity: 0.9; }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
+        
+        @keyframes float {{
+            0%, 100% {{ transform: translateY(0px); }}
+            50% {{ transform: translateY(-20px); }}
         }}
     </style>
     """, unsafe_allow_html=True)
@@ -90,8 +110,15 @@ def main():
             st.rerun()
 
         st.divider()
-        st.markdown(f"<div style='text-align:center;color:#4ecca3;'>Developed by {DEVELOPER}</div>", 
-                   unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style='text-align:center;color:#4ecca3;'>
+            Developed by {DEVELOPER}
+            <br>
+            <a href="mailto:waqaskhos99@gmail.com">waqaskhos99@gmail.com</a>
+            <br>
+            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">GitHub Repository</a>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Display chat messages
     assistant_idx = 0
