@@ -1,6 +1,5 @@
 import streamlit as st
 from groq import Groq
-import os
 
 # ======================
 #  CONFIGURATION
@@ -18,13 +17,9 @@ MODEL_OPTIONS = ["mixtral-8x7b-32768", "llama-3.3-70b-versatile"]  # Available m
 def inject_custom_css():
     st.markdown("""
     <style>
-        .main { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #e6e6e6; max-width: 800px; margin: 0 auto; padding: 2rem !important; font-family: 'Segoe UI', sans-serif; }
-        .stChatMessage { max-width: 600px; margin: 1rem auto !important; transform: translateX(5%); }
-        .assistant-message { display: flex; align-items: center; flex-direction: row-reverse; gap: 1.5rem; padding: 1rem 0; }
-        .assistant-avatar { flex-shrink: 0; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3); animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-        .message-content { background: rgba(255, 255, 255, 0.05); padding: 1.2rem; border-radius: 15px; flex-grow: 1; backdrop-filter: blur(10px); }
-        @media (max-width: 768px) { .assistant-avatar { width: 45px; height: 45px; } .main { padding: 1rem !important; } }
+        .main { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #e6e6e6; max-width: 800px; margin: 0 auto; padding: 2rem; font-family: 'Segoe UI', sans-serif; }
+        .assistant-avatar { width: 50px; height: 50px; border-radius: 50%; box-shadow: 0 4px 12px rgba(78, 204, 163, 0.4); }
+        .message-content { background: rgba(255, 255, 255, 0.05); padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px); }
     </style>
     """, unsafe_allow_html=True)
 
@@ -65,18 +60,19 @@ def render_sidebar():
             [![Email](https://img.shields.io/badge/Email-waqaskhosa99@gmail.com-blue?logo=gmail&logoColor=white)](mailto:{EMAIL})
         </div>
         """, unsafe_allow_html=True)
-        
-        # Social badges with proper spacing
-        st.markdown("""
+
+        st.markdown(f"""
         <div style="margin-top: 1rem;">
-            [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&logoColor=white)]({})
-            [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github&logoColor=white)]({})
+            [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&logoColor=white)]({LINKEDIN})
+            [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github&logoColor=white)]({GITHUB})
         </div>
-        """.format(LINKEDIN, GITHUB), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         st.divider()
         st.header("⚙️ Settings")
         return st.selectbox("Select AI Model", MODEL_OPTIONS, index=0)
+
+# ======================
 #  MAIN CHAT INTERFACE
 # ======================
 def main():
@@ -96,32 +92,26 @@ def main():
 
     # Initialize chat session
     if "messages" not in st.session_state:
-        st.session_state.messages = [{
-            "role": "assistant",
-            "content": "Hello! I'm your AI assistant. How can I help you today? 🌟"
-        }]
+        st.session_state.messages = [
+            {"role": "assistant", "content": "Hello! I'm your AI assistant. How can I help you today? 🌟"}
+        ]
 
     # Display previous chat messages
     for message in st.session_state.messages:
         if message["role"] == "assistant":
-            with st.chat_message("assistant"):
-                st.markdown(f"""
-                <div class="assistant-message">
-                    <img src="{BOT_AVATAR}" class="assistant-avatar">
-                    <div class="message-content">{message["content"]}</div>
-                </div>
-                """, unsafe_allow_html=True)
+            with st.chat_message("assistant", avatar=BOT_AVATAR):
+                st.markdown(f'<div class="message-content">{message["content"]}</div>', unsafe_allow_html=True)
         else:
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(message["content"])
+            with st.chat_message("user"):
+                st.markdown(f'<div class="message-content">{message["content"]}</div>', unsafe_allow_html=True)
 
     # Handle user input
     if prompt := st.chat_input("Type your message..."):
         try:
             st.session_state.messages.append({"role": "user", "content": prompt})
 
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(prompt)
+            with st.chat_message("user"):
+                st.markdown(f'<div class="message-content">{prompt}</div>', unsafe_allow_html=True)
 
             with st.spinner("🧠 Processing..."):
                 response = client.chat.completions.create(
@@ -136,12 +126,7 @@ def main():
                 for chunk in response:
                     if chunk.choices[0].delta.content:
                         full_response.append(chunk.choices[0].delta.content)
-                        message_container.markdown(f"""
-                        <div class="assistant-message">
-                            <img src="{BOT_AVATAR}" class="assistant-avatar">
-                            <div class="message-content">{"".join(full_response)}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
+                        message_container.markdown(f'<div class="message-content">{"".join(full_response)}</div>', unsafe_allow_html=True)
 
                 st.session_state.messages.append({
                     "role": "assistant",
