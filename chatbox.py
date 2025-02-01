@@ -33,8 +33,17 @@ def inject_custom_css():
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             margin: 1rem 0;
-            position: relative;
-            animation: fadeIn 0.5s ease-out;
+            max-width: 80%;
+            width: fit-content;
+        }}
+        
+        .user-message {{
+            background: rgba(78, 204, 163, 0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0 1rem auto;
+            max-width: 80%;
+            width: fit-content;
         }}
         
         .assistant-avatar {{
@@ -42,7 +51,7 @@ def inject_custom_css():
             height: 50px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
-            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
+            animation: float 3s ease-in-out infinite;
         }}
         
         .response-time {{
@@ -52,26 +61,33 @@ def inject_custom_css():
             margin-top: 0.5rem;
         }}
         
-        @media (max-width: 768px) {{
-            .assistant-avatar {{ width: 40px; height: 40px; }}
-            .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
+        .developer-section {{
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
         }}
         
-        @keyframes fadeIn {{
-            from {{ opacity: 0; }}
-            to {{ opacity: 1; }}
+        .social-icon {{
+            width: 32px;
+            height: 32px;
+            margin: 0 0.5rem;
+            transition: transform 0.3s ease;
         }}
         
-        @keyframes bounceIn {{
-            0% {{ transform: scale(0.5); opacity: 0; }}
-            50% {{ transform: scale(1.05); opacity: 0.7; }}
-            70% {{ transform: scale(0.95); opacity: 0.9; }}
-            100% {{ transform: scale(1); opacity: 1; }}
+        .social-icon:hover {{
+            transform: translateY(-3px);
         }}
         
         @keyframes float {{
             0%, 100% {{ transform: translateY(0px); }}
-            50% {{ transform: translateY(-20px); }}
+            50% {{ transform: translateY(-15px); }}
+        }}
+        
+        @media (max-width: 768px) {{
+            .assistant-avatar {{ width: 40px; height: 40px; }}
+            .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
         }}
     </style>
     """, unsafe_allow_html=True)
@@ -89,7 +105,7 @@ def main():
         st.session_state.response_times = []
 
     with st.sidebar:
-        st.title(⚙️ Settings")
+        st.title("⚙️ Settings")  # Fixed syntax error
         selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
                                     format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
         
@@ -100,20 +116,22 @@ def main():
 
         st.divider()
         st.markdown(f"""
-        <div style='text-align:center;color:#4ecca3;'>
-            Developed by {DEVELOPER}
-            <br>
-            <a href="mailto:waqaskhos99@gmail.com">
-                <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email Icon"/> waqaskhos99@gmail.com
-            </a>
-            <br>
-            <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
-                <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn Icon"/> LinkedIn
-            </a>
-            <br>
-            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
-                <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub Icon"/> GitHub Repository
-            </a>
+        <div class="developer-section">
+            <h4 style='color: var(--primary-color);'>Developed by {DEVELOPER}</h4>
+            <div style='margin-top: 1.5rem;'>
+                <a href="mailto:waqaskhos99@gmail.com">
+                    <img src="https://img.icons8.com/color/48/000000/gmail.png" class="social-icon" alt="Email">
+                </a>
+                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
+                    <img src="https://img.icons8.com/color/48/000000/linkedin.png" class="social-icon" alt="LinkedIn">
+                </a>
+                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
+                    <img src="https://img.icons8.com/color/48/000000/github.png" class="social-icon" alt="GitHub">
+                </a>
+            </div>
+            <p style='margin-top: 1rem; font-size: 0.9rem;'>
+                waqaskhos99@gmail.com
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -134,7 +152,7 @@ def main():
                 assistant_idx += 1
         else:
             with st.chat_message("user", avatar="👤"):
-                st.markdown(message["content"])
+                st.markdown(f"<div class='user-message'>{message['content']}</div>", unsafe_allow_html=True)
 
     if prompt := st.chat_input("Type your message..."):
         try:
