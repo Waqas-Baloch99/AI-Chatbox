@@ -40,7 +40,6 @@ def inject_custom_css():
         .user-message {{
     background: rgba(78, 204, 163, 0.1);
     display:inline-flex;
-    padding: 1rem;
     border-radius: 15px;
     margin: 0.5rem 0 0.5rem auto;
     max-width: 80%;
