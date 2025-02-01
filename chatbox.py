@@ -38,6 +38,8 @@ def inject_custom_css():
             align-items: center;
             gap: 1rem;
             max-width: 75%;
+            animation: fadeIn 0.5s ease-out;
+
         }}
         
         .user-message {{
