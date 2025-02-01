@@ -48,20 +48,20 @@ def inject_custom_css():
         
         /* User Message Styling */
         .user-message {
-         background: rgba(99, 102, 241, 0.25);
-            padding: 1rem 1.5rem;
-            border-radius: 20px 20px 5px 20px;
-            margin: 0.8rem 0 0.8rem auto !important;  /* Force right alignment */
-            max-width: 75%;
-            width: fit-content;
-            word-break: break-word;
-            animation: slideInRight 0.3s ease-out;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            font-size: 1rem;
-            line-height: 1.5;
-            position: relative;
-            text-align: left;  
+        background: rgba(99, 102, 241, 0.25);
+    padding: 1rem 1.5rem;
+    border-radius: 20px 20px 5px 20px;
+    margin: 0.8rem 0 0.8rem auto !important;  /* Force right alignment */
+    max-width: 75%;
+    width: fit-content;
+    word-break: break-word;
+    animation: slideInRight 0.3s ease-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    font-size: 1rem;
+    line-height: 1.5;
+    position: relative;
+    text-align: left;
         }
 
         /* Animations */
