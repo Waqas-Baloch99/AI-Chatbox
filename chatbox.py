@@ -43,7 +43,7 @@ def inject_custom_css():
         }
         
         .user-message {
-            background: rgba(78, 204, 163, 0.25);
+            background: rgba(78, 204, 163, 0.15);
             padding: 1rem 1.5rem;
             border-radius: 20px 5px 20px 20px;
             margin: 0.8rem 0 0.8rem auto;
@@ -52,7 +52,7 @@ def inject_custom_css():
             word-break: break-word;
             animation: slideIn 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(78, 204, 163, 0.4);
+            border: 1px solid rgba(78, 204, 163, 0.3);
             font-size: 0.95rem;
             line-height: 1.4;
         }
