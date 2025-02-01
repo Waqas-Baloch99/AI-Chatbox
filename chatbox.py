@@ -38,7 +38,6 @@ def inject_custom_css():
         }}
         
         .user-message {{
-            background: rgba(78, 204, 163, 0.1);
             display: flex;
             align-items: flex-start;
             gap: 1.2rem;
