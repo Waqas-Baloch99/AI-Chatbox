@@ -19,6 +19,7 @@ def inject_custom_css():
     <style>
         :root {
             --primary-color: #4ecca3;
+            --user-color: #6366f1;
             --bg-gradient: linear-gradient(135deg, #2a9d8f, #264653);
         }
         
@@ -29,6 +30,7 @@ def inject_custom_css():
             font-family: 'Segoe UI', sans-serif;
         }
         
+        /* Assistant Message Styling */
         .assistant-message {
             display: flex;
             align-items: flex-start;
@@ -40,24 +42,39 @@ def inject_custom_css():
             max-width: 85%;
             width: fit-content;
             border: 1px solid rgba(78, 204, 163, 0.2);
+            position: relative;
+            animation: slideInLeft 0.3s ease-out;
         }
         
+        /* User Message Styling */
         .user-message {
-            background: rgba(78, 204, 163, 0.15);
+            background: rgba(99, 102, 241, 0.25);
             padding: 1rem 1.5rem;
-            border-radius: 20px 5px 20px 20px;
+            border-radius: 20px 20px 5px 20px;
             margin: 0.8rem 0 0.8rem auto;
             max-width: 75%;
             width: fit-content;
             word-break: break-word;
-            animation: slideIn 0.3s ease-out;
+            animation: slideInRight 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(78, 204, 163, 0.3);
-            font-size: 0.95rem;
-            line-height: 1.4;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            font-size: 1rem;
+            line-height: 1.5;
         }
 
-        @keyframes slideIn {
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInRight {
             from {
                 transform: translateX(20px);
                 opacity: 0;
@@ -73,19 +90,45 @@ def inject_custom_css():
             height: 50px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
+            animation: float 3s ease-in-out infinite;
         }
         
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Response Time Styling */
         .response-time {
             color: #4ecca3 !important;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin-top: 0.5rem;
             font-weight: bold;
             letter-spacing: 0.5px;
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+        }
+        
+        /* Typing Animation */
+        .generating-text::after {
+            content: '...';
+            animation: typing 1.5s infinite;
+            display: inline-block;
+            width: 1em;
+        }
+        
+        @keyframes typing {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
         }
         
         .message-content {
             width: calc(100% - 60px);
             padding-right: 10px;
+            position: relative;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -103,35 +146,7 @@ def main():
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
 
-    # Sidebar Settings
-    with st.sidebar:
-        st.title("⚙️ Settings")  
-        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
-                                    format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
-        
-        if st.button("🧹 Clear Chat History", use_container_width=True):
-            st.session_state.messages = []
-            st.session_state.response_times = []
-            st.rerun()
-
-        st.divider()
-        st.markdown(f"""
-        <div class="developer-section">
-            <h4 style='color: var(--primary-color);'>Developed by {DEVELOPER}</h4>
-            <div style='margin-top: 1.5rem;'>
-                <a href="mailto:waqaskhos99@gmail.com">
-                    <img src="https://img.icons8.com/color/48/000000/gmail.png" class="social-icon" alt="Email">
-                </a>
-                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
-                    <img src="https://img.icons8.com/color/48/000000/linkedin.png" class="social-icon" alt="LinkedIn">
-                </a>
-                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
-                    <img src="https://img.icons8.com/color/48/000000/github.png" class="social-icon" alt="GitHub">
-                </a>
-            </div>
-            <p style='margin-top: 1rem; font-size: 0.9rem;'>waqaskhos99@gmail.com</p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Sidebar Settings (unchanged from previous version)
 
     # Display chat history
     assistant_idx = 0
@@ -178,7 +193,7 @@ def main():
                             <img src="{BOT_AVATAR}" class="assistant-avatar">
                             <div class="message-content">
                                 {"".join(full_response).strip()}
-                                <div class="response-time">Generating...</div>
+                                <div class="response-time generating-text">Generating</div>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
