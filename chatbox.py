@@ -49,7 +49,7 @@ def inject_custom_css():
             height: 45px;
             border-radius: 50%;
             box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
-            animation: float 3s ease-in-out infinite;
+            animation: float 3s ease-in-out infinite bounceIn 0.6s ease-out;
             flex-shrink: 0;
         }}
         
