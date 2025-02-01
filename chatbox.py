@@ -48,10 +48,10 @@ def inject_custom_css():
         
         /* User Message Styling */
         .user-message {
-            background: rgba(99, 102, 241, 0.25);
+         background: rgba(99, 102, 241, 0.25);
             padding: 1rem 1.5rem;
             border-radius: 20px 20px 5px 20px;
-            margin: 0.8rem 0 0.8rem auto;
+            margin: 0.8rem 0 0.8rem auto !important;  /* Force right alignment */
             max-width: 75%;
             width: fit-content;
             word-break: break-word;
@@ -60,6 +60,8 @@ def inject_custom_css():
             border: 1px solid rgba(99, 102, 241, 0.4);
             font-size: 1rem;
             line-height: 1.5;
+            position: relative;
+            text-align: left;  
         }
 
         /* Animations */
