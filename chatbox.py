@@ -40,14 +40,12 @@ def inject_custom_css():
         }}
         
         .user-message {{
-            background: linear-gradient(145deg, rgba(108, 99, 255, 0.05), rgba(47, 46, 65, 0.1));
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            border: 1px solid rgba(108, 99, 255, 0.1);
-            animation: slideIn 0.3s ease-out;
-            text-align: right;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            margin-left: 30%;
+            max-width: 65%;
         }}
+    
         
         .assistant-avatar {{
             width: 50px;
