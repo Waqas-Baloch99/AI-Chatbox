@@ -38,16 +38,17 @@ def inject_custom_css():
         }}
         
         .user-message {{
-            display: flex;
-            align-items: flex-start;
-            gap: 1.2rem;
-            padding: 1rem;
-            border-radius: 15px;
-            margin: 1rem 0;
-            max-width: 80%;
-            width: fit-content;
-        }}
-        
+    background: rgba(78, 204, 163, 0.1);
+    border: 1px solid rgba(78, 204, 163, 0.2);
+    display: inline-flex;
+    padding: 1rem;
+    border-radius: 15px 15px 0 15px;
+    margin: 0.5rem 0 0.5rem auto;
+    max-width: 80%;
+    width: fit-content;
+    word-break: break-word;
+    animation: slideIn 0.3s ease-out;
+}}
         .assistant-avatar {{
             width: 50px;
             height: 50px;
