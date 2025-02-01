@@ -47,7 +47,7 @@ def inject_custom_css():
             margin: 0.8rem 0 0.8rem auto;
             border: 1px solid rgba(255,255,255,0.1);
             animation: slideIn 0.3s ease-out;
-            text-align: right;
+            text-align: left;
             max-width: 75%;
             width: fit-content;
         }}
