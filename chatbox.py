@@ -38,8 +38,7 @@ def inject_custom_css():
         }}
         
         .user-message {{
- 
-    border: 1px solid rgba(78, 204, 163, 0.2);
+    background: rgba(78, 204, 163, 0.1);
     display: inline-flex;
     padding: 1rem;
     border-radius: 15px 15px 0 15px;
