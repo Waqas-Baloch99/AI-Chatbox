@@ -47,7 +47,6 @@ def inject_custom_css():
             border: 1px solid rgba(108, 99, 255, 0.1);
             animation: slideIn 0.3s ease-out;
             text-align: right;
-            margin-left: 20%;
         }}
         
         .assistant-avatar {{
