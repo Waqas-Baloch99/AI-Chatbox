@@ -15,108 +15,139 @@ def inject_custom_css():
     <style>
         :root {{
             --primary-color: #4ecca3;
+            --secondary-color: #2b5876;
             --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
         }}
         
         .main {{
-            background: var(--bg-gradient); 
+            background: var(--bg-gradient);
             color: #e6e6e6;
-            padding: 1.5rem !important;
             font-family: 'Segoe UI', sans-serif;
-        }}
-        
-        .assistant-message {{
-            display: flex;
-            align-items: flex-start;
-            gap: 1.2rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            margin: 1rem 0;
             position: relative;
-            animation: fadeIn 0.5s ease-out;
+            overflow-x: hidden;
         }}
         
+        /* Message Bubbles */
+        .assistant-message {{
+            background: linear-gradient(145deg, rgba(46, 49, 146, 0.2), rgba(27, 27, 50, 0.3));
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(78, 204, 163, 0.1);
+            animation: slideIn 0.3s ease-out;
+        }}
+        
+        .user-message {{
+            background: linear-gradient(145deg, rgba(78, 204, 163, 0.15), rgba(78, 204, 163, 0.05));
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(78, 204, 163, 0.2);
+            animation: slideIn 0.3s ease-out;
+        }}
+        
+        /* Avatar and Animation */
         .assistant-avatar {{
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
-            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
+            box-shadow: 0 8px 20px rgba(78, 204, 163, 0.3);
+            animation: float 3s ease-in-out infinite;
         }}
         
+        /* Boat Animation */
+        .boat {{
+            position: fixed;
+            bottom: -50px;
+            right: -50px;
+            font-size: 80px;
+            opacity: 0.1;
+            animation: sail 20s linear infinite;
+            pointer-events: none;
+        }}
+        
+        /* Response Time */
         .response-time {{
             font-size: 0.8rem;
             color: var(--primary-color);
             text-align: right;
             margin-top: 0.5rem;
+            opacity: 0.8;
         }}
         
-        @media (max-width: 768px) {{
-            .assistant-avatar {{ width: 40px; height: 40px; }}
-            .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
+        /* Sidebar Styling */
+        .sidebar .sidebar-content {{
+            background: linear-gradient(160deg, #16213e 0%, #1a1a2e 100%);
+            border-right: 1px solid rgba(78, 204, 163, 0.1);
         }}
         
-        @keyframes fadeIn {{
-            from {{ opacity: 0; }}
-            to {{ opacity: 1; }}
-        }}
-        
-        @keyframes bounceIn {{
-            0% {{ transform: scale(0.5); opacity: 0; }}
-            50% {{ transform: scale(1.05); opacity: 0.7; }}
-            70% {{ transform: scale(0.95); opacity: 0.9; }}
-            100% {{ transform: scale(1); opacity: 1; }}
-        }}
-        
+        /* Keyframe Animations */
         @keyframes float {{
             0%, 100% {{ transform: translateY(0px); }}
-            50% {{ transform: translateY(-20px); }}
+            50% {{ transform: translateY(-15px); }}
+        }}
+        
+        @keyframes sail {{
+            0% {{ transform: translateX(100vw) rotate(30deg); }}
+            100% {{ transform: translateX(-100vw) rotate(30deg); }}
+        }}
+        
+        @keyframes slideIn {{
+            from {{ transform: translateY(20px); opacity: 0; }}
+            to {{ transform: translateY(0); opacity: 1; }}
+        }}
+        
+        /* Mobile Optimization */
+        @media (max-width: 768px) {{
+            .assistant-avatar {{ width: 45px; height: 45px; }}
+            .boat {{ display: none; }}
         }}
     </style>
+    <div class="boat">⛵</div>
     """, unsafe_allow_html=True)
 
-def main():
-    st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
-    inject_custom_css()
-
-    st.title("💬 Groq AI Chatbox")
-    st.caption("Real-time AI conversations powered by Groq's LPU technology")
-
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-    if "response_times" not in st.session_state:
-        st.session_state.response_times = []
-
+def create_sidebar():
     with st.sidebar:
         st.title("⚙️ Settings")
-        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
-                                    format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
+        selected_model = st.selectbox(
+            "AI Model", 
+            list(MODEL_INFO.keys()),
+            format_func=lambda x: f"{x.split('-')[0].title()} ({'32768' if 'mixtral' in x else '4096'} tokens)",
+            help=MODEL_INFO.get(selected_model, "Select an AI model")
+        )
         
-        if st.button("🧹 Clear Chat History", use_container_width=True):
+        if st.button("🧹 Clear Chat History", use_container_width=True, type="secondary"):
             st.session_state.messages = []
             st.session_state.response_times = []
             st.rerun()
 
         st.divider()
         st.markdown(f"""
-        <div style='text-align:center;color:#4ecca3;'>
-            Developed by {DEVELOPER}
-            <br>
-            <a href="mailto:waqaskhos99@gmail.com">
-                <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email Icon"/> waqaskhos99@gmail.com
-            </a>
-            <br>
-            <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
-                <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn Icon"/> LinkedIn
-            </a>
-            <br>
-            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
-                <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub Icon"/> GitHub Repository
-            </a>
+        <div style='text-align:center; padding: 1.5rem 0;'>
+            <h4 style='color: var(--primary-color); margin-bottom: 1.5rem;'>Developed by {DEVELOPER}</h4>
+            <div style='display: grid; gap: 1rem;'>
+                <a href="mailto:waqaskhos99@gmail.com" style='text-decoration: none;'>
+                    <button style='width: 100%; background: rgba(78, 204, 163, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; padding: 0.5rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.5rem;'>
+                        ✉️ Contact via Email
+                    </button>
+                </a>
+                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank" style='text-decoration: none;'>
+                    <button style='width: 100%; background: rgba(78, 204, 163, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; padding: 0.5rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.5rem;'>
+                        🔗 LinkedIn Profile
+                    </button>
+                </a>
+                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank" style='text-decoration: none;'>
+                    <button style='width: 100%; background: rgba(78, 204, 163, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; padding: 0.5rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.5rem;'>
+                        🐙 GitHub Repository
+                    </button>
+                </a>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
+def display_chat_messages():
     assistant_idx = 0
     for message in st.session_state.messages:
         if message["role"] == "assistant":
@@ -124,7 +155,7 @@ def main():
                 st.markdown(f"""
                     <div class="assistant-message">
                         <img src="{BOT_AVATAR}" class="assistant-avatar">
-                        <div class="message-content">
+                        <div style="margin-left: 1rem; flex-grow: 1;">
                             {message["content"]}
                             {f'<div class="response-time">Response time: {st.session_state.response_times[assistant_idx]:.2f}s</div>' 
                              if assistant_idx < len(st.session_state.response_times) else ''}
@@ -134,12 +165,16 @@ def main():
                 assistant_idx += 1
         else:
             with st.chat_message("user", avatar="👤"):
-                st.markdown(message["content"])
+                st.markdown(f"""
+                    <div class="user-message">
+                        {message["content"]}
+                    </div>
+                """, unsafe_allow_html=True)
 
+def handle_chat_input(selected_model):
     if prompt := st.chat_input("Type your message..."):
         try:
             client = Groq(api_key=st.secrets.GROQ.API_KEY)
-            
             st.session_state.messages.append({"role": "user", "content": prompt})
             
             start_time = time.time()
@@ -159,7 +194,7 @@ def main():
                     message_placeholder.markdown(f"""
                         <div class="assistant-message">
                             <img src="{BOT_AVATAR}" class="assistant-avatar">
-                            <div class="message-content">
+                            <div style="margin-left: 1rem; flex-grow: 1;">
                                 {"".join(full_response).strip()}
                                 <div class="response-time">Generating...</div>
                             </div>
@@ -175,6 +210,22 @@ def main():
             st.error(f"⚠️ Error: {str(e)}")
             if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
+
+def main():
+    st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖", layout="wide")
+    inject_custom_css()
+
+    st.title("💬 Groq AI Chatbox")
+    st.caption("Real-time AI conversations powered by Groq's LPU Technology 🌊")
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    if "response_times" not in st.session_state:
+        st.session_state.response_times = []
+
+    create_sidebar()
+    display_chat_messages()
+    handle_chat_input(st.session_state.selected_model if 'selected_model' in st.session_state else "mixtral-8x7b-32768")
 
 if __name__ == "__main__":
     main()
