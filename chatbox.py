@@ -51,7 +51,7 @@ def inject_custom_css():
     line-height: 1.4;
 }}
 
-@keyframes slideIn {
+@keyframes slideIn {{
     from {{
         transform: translateX(20px);
         opacity: 0;
@@ -105,9 +105,7 @@ def inject_custom_css():
             .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
         }}
     </style>
-    """, unsafe_allow_html=True)
-
-def main():
+    """, unsafe_allow_html=True)def main():
     st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
     inject_custom_css()
 
