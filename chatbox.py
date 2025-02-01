@@ -13,61 +13,39 @@ MODEL_INFO = {
 def inject_custom_css():
     st.markdown(f"""
     <style>
-        :root {{
+       :root {{
             --primary-color: #6C63FF;
             --secondary-color: #2F2E41;
             --bg-gradient: linear-gradient(135deg, #0F0C29, #302B63);
         }}
         
-        .main {{
-            background: var(--bg-gradient);
-            color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
-            position: relative;
-            overflow-x: hidden;
+        /* Reduced navbar height */
+        .sidebar .sidebar-content {{
+            padding-top: 2rem;
+            height: calc(100vh - 50px);
         }}
         
         .assistant-message {{
             background: linear-gradient(145deg, rgba(108, 99, 255, 0.1), rgba(47, 46, 65, 0.2));
             border-radius: 20px 20px 20px 5px;
-            padding: 1.2rem;
-            margin: 0.8rem 0;
+            padding: 1rem;
+            margin: 0.5rem 0;
             border: 1px solid rgba(108, 99, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            max-width: 75%;
+            max-width: 70%;
+            width: fit-content;
             animation: fadeIn 0.5s ease-out;
         }}
         
         .user-message {{
             background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
             border-radius: 20px 5px 20px 20px;
-            padding: 1.2rem;
-            margin: 0.8rem 0 0.8rem auto;
+            padding: 1rem;
+            margin: 0.5rem 0 0.5rem auto;
             border: 1px solid rgba(255,255,255,0.1);
-            text-align: right;
-            max-width: 75%;
+            max-width: 70%;
             width: fit-content;
             animation: slideIn 0.3s ease-out;
-        }}
-        
-        .assistant-avatar {{
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
-            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
-            flex-shrink: 0;
-        }}
-        
-        .message-content {{
-            flex-grow: 1;
-            padding: 0 1rem;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }}
-        
+        }}  
         .response-time {{
             font-size: 0.75rem;
             color: var(--primary-color);
