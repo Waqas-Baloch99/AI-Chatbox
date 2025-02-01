@@ -42,7 +42,6 @@ def inject_custom_css():
             border-radius: 15px;
             padding: 1rem;
             margin: 1rem 0 1rem auto;
-            max-width: 80%;
             width: fit-content;
         }}
         
