@@ -2,183 +2,96 @@ import streamlit as st
 from groq import Groq
 import time
 
-# Developer Info
 DEVELOPER = "Waqas Baloch"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
-
-# Available AI Models
 MODEL_INFO = {
     "mixtral-8x7b-32768": "High-quality text generation with 8 experts mixture",
     "llama-3.3-70b-versatile": "Large 70B parameter model for complex tasks",
     "deepseek-r1-distill-llama-70b": "Distilled version optimized for speed"
 }
 
-# Inject Custom CSS for Styling
 def inject_custom_css():
-    st.markdown("""
+    st.markdown(f"""
     <style>
-        :root {
+        :root {{
             --primary-color: #4ecca3;
-            --user-color: #6366f1;
-            --bg-gradient: linear-gradient(135deg, #2a9d8f, #264653);
-        }
+            --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
+        }}
         
-        .main {
-            background: var(--bg-gradient) !important;
+        .main {{
+            background: var(--bg-gradient); 
             color: #e6e6e6;
             padding: 1.5rem !important;
             font-family: 'Segoe UI', sans-serif;
-        }
+        }}
         
-        /* Assistant Message Styling */
-        .assistant-message {
+        .assistant-message {{
             display: flex;
             align-items: flex-start;
             gap: 1.2rem;
             padding: 1rem;
-            background: rgba(42, 157, 143, 0.15);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
-            margin: 1rem 0 1rem 10px;
-            max-width: 82%;
-            width: fit-content;
-            border: 1px solid rgba(78, 204, 163, 0.2);
+            margin: 1rem 0;
             position: relative;
-            animation: slideInLeft 0.3s ease-out;
-        }
+            animation: fadeIn 0.5s ease-out;
+        }}
         
-        /* User Message Styling */
-        .user-message {
-            background: rgba(99, 102, 241, 0.25);
-            padding: 1rem 1.5rem;
-            border-radius: 20px 20px 5px 20px;
-            margin: 0.8rem 10px 0.8rem auto !important;
-            max-width: 78%;
-            width: fit-content;
-            word-break: break-word;
-            animation: slideInRight 0.3s ease-out;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            font-size: 1rem;
-            line-height: 1.5;
-            position: relative;
-            text-align: left;
-        }
-
-        /* Animations */
-        @keyframes slideInLeft {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .assistant-avatar {
+        .assistant-avatar {{
             width: 50px;
             height: 50px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
-            animation: float 3s ease-in-out infinite;
-        }
+            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
+        }}
         
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-            100% { transform: translateY(0px); }
-        }
-        
-        .response-time {
-            color: #4ecca3 !important;
-            font-size: 0.75rem;
+        .response-time {{
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            text-align: right;
             margin-top: 0.5rem;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            position: absolute;
-            bottom: 8px;
-            right: 12px;
-        }
+        }}
         
-        .generating-text::after {
-            content: '...';
-            animation: typing 1.5s infinite;
-            display: inline-block;
-            width: 1em;
-        }
+        @media (max-width: 768px) {{
+            .assistant-avatar {{ width: 40px; height: 40px; }}
+            .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
+        }}
         
-        @keyframes typing {
-            0% { content: '.'; }
-            33% { content: '..'; }
-            66% { content: '...'; }
-        }
+        @keyframes fadeIn {{
+            from {{ opacity: 0; }}
+            to {{ opacity: 1; }}
+        }}
         
-        .message-content {
-            width: calc(100% - 60px);
-            padding-right: 10px;
-            position: relative;
-        }
+        @keyframes bounceIn {{
+            0% {{ transform: scale(0.5); opacity: 0; }}
+            50% {{ transform: scale(1.05); opacity: 0.7; }}
+            70% {{ transform: scale(0.95); opacity: 0.9; }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
         
-        /* Container alignment */
-        .stChatMessage {
-            max-width: 94%;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0 1%;
-        }
-        
-        /* User Avatar Alignment Fix */
-        [data-testid="stChatMessage"] [alt="👤"] {
-            margin-left: auto !important;
-            margin-right: 12px !important;
-            order: 2 !important;
-        }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .assistant-message {
-                max-width: 88%;
-                margin-left: 5px;
-            }
-            .user-message {
-                max-width: 85%;
-                margin-right: 5px !important;
-            }
-            .stChatMessage {
-                max-width: 98% !important;
-            }
-            .assistant-avatar {
-                width: 40px;
-                height: 40px;
-            }
-        }
+        @keyframes float {{
+            0%, 100% {{ transform: translateY(0px); }}
+            50% {{ transform: translateY(-20px); }}
+        }}
     </style>
     """, unsafe_allow_html=True)
 
-# Main App
 def main():
     st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
     inject_custom_css()
 
-    # Initialize session state variables
+    st.title("💬 Groq AI Chatbox")
+    st.caption("Real-time AI conversations powered by Groq's LPU technology")
+
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
-    if "selected_model" not in st.session_state:
-        st.session_state.selected_model = list(MODEL_INFO.keys())[0]
 
-    st.title("💬 Groq AI Chatbox")
-    st.caption("Real-time AI conversations powered by Groq's LPU technology")
-
-    # Sidebar Settings
     with st.sidebar:
-        st.title("⚙️ Settings")
-        st.session_state.selected_model = st.selectbox(
-            "AI Model",
-            list(MODEL_INFO.keys()),
-            format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)"
-        )
+        st.title(⚙️ Settings")
+        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
+                                    format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
         
         if st.button("🧹 Clear Chat History", use_container_width=True):
             st.session_state.messages = []
@@ -187,24 +100,23 @@ def main():
 
         st.divider()
         st.markdown(f"""
-        <div class="developer-section">
-            <h4 style='color: var(--primary-color);'>Developed by {DEVELOPER}</h4>
-            <div style='margin-top: 1.5rem;'>
-                <a href="mailto:waqaskhos99@gmail.com">
-                    <img src="https://img.icons8.com/color/48/000000/gmail.png" class="social-icon" alt="Email">
-                </a>
-                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
-                    <img src="https://img.icons8.com/color/48/000000/linkedin.png" class="social-icon" alt="LinkedIn">
-                </a>
-                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
-                    <img src="https://img.icons8.com/color/48/000000/github.png" class="social-icon" alt="GitHub">
-                </a>
-            </div>
-            <p style='margin-top: 1rem; font-size: 0.9rem;'>waqaskhos99@gmail.com</p>
+        <div style='text-align:center;color:#4ecca3;'>
+            Developed by {DEVELOPER}
+            <br>
+            <a href="mailto:waqaskhos99@gmail.com">
+                <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email Icon"/> waqaskhos99@gmail.com
+            </a>
+            <br>
+            <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
+                <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn Icon"/> LinkedIn
+            </a>
+            <br>
+            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
+                <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub Icon"/> GitHub Repository
+            </a>
         </div>
         """, unsafe_allow_html=True)
 
-    # Display chat history
     assistant_idx = 0
     for message in st.session_state.messages:
         if message["role"] == "assistant":
@@ -222,25 +134,19 @@ def main():
                 assistant_idx += 1
         else:
             with st.chat_message("user", avatar="👤"):
-                st.markdown(f"""
-                    <div style="width: 100%; display: flex; justify-content: flex-end;">
-                        <div class='user-message'>
-                            {message['content']}
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.markdown(message["content"])
 
-    # User Input & AI Response
     if prompt := st.chat_input("Type your message..."):
         try:
-            client = Groq(api_key=st.secrets["GROQ"]["API_KEY"])
+            client = Groq(api_key=st.secrets.GROQ.API_KEY)
             
             st.session_state.messages.append({"role": "user", "content": prompt})
             
             start_time = time.time()
             response = client.chat.completions.create(
-                model=st.session_state.selected_model,
-                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[-4:]],
+                model=selected_model,
+                messages=[{"role": m["role"], "content": m["content"]} 
+                         for m in st.session_state.messages[-4:]],
                 temperature=0.7,
                 stream=True
             )
@@ -250,28 +156,18 @@ def main():
             for chunk in response:
                 if chunk.choices[0].delta.content:
                     full_response.append(chunk.choices[0].delta.content)
-                    formatted_response = "".join(full_response).strip()
-                    # Fix common formatting issues in real-time
-                    formatted_response = formatted_response.replace("  ", " ")
-                    formatted_response = formatted_response.replace(".However", ". However")
-                    
                     message_placeholder.markdown(f"""
                         <div class="assistant-message">
                             <img src="{BOT_AVATAR}" class="assistant-avatar">
                             <div class="message-content">
-                                {formatted_response}
-                                <div class="response-time generating-text">Generating</div>
+                                {"".join(full_response).strip()}
+                                <div class="response-time">Generating...</div>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
 
             response_time = time.time() - start_time
-            # Final formatting cleanup
-            final_response = "".join(full_response).strip()
-            final_response = final_response.replace("  ", " ")
-            final_response = final_response.replace(".However", ". However")
-            
-            st.session_state.messages.append({"role": "assistant", "content": final_response})
+            st.session_state.messages.append({"role": "assistant", "content": "".join(full_response).strip()})
             st.session_state.response_times.append(response_time)
             st.rerun()
 
