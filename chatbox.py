@@ -64,25 +64,13 @@ def inject_custom_css():
 
         /* Animations */
         @keyframes slideInLeft {
-            from {
-                transform: translateX(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         
         @keyframes slideInRight {
-            from {
-                transform: translateX(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         
         .assistant-avatar {
@@ -99,7 +87,6 @@ def inject_custom_css():
             100% { transform: translateY(0px); }
         }
         
-        /* Response Time Styling */
         .response-time {
             color: #4ecca3 !important;
             font-size: 0.75rem;
@@ -111,7 +98,6 @@ def inject_custom_css():
             right: 12px;
         }
         
-        /* Typing Animation */
         .generating-text::after {
             content: '...';
             animation: typing 1.5s infinite;
@@ -130,6 +116,13 @@ def inject_custom_css():
             padding-right: 10px;
             position: relative;
         }
+        
+        /* Container alignment */
+        .stChatMessage {
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -138,15 +131,49 @@ def main():
     st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
     inject_custom_css()
 
-    st.title("💬 Groq AI Chatbox")
-    st.caption("Real-time AI conversations powered by Groq's LPU technology")
-
+    # Initialize session state variables
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
+    if "selected_model" not in st.session_state:
+        st.session_state.selected_model = list(MODEL_INFO.keys())[0]
 
-    # Sidebar Settings (unchanged from previous version)
+    st.title("💬 Groq AI Chatbox")
+    st.caption("Real-time AI conversations powered by Groq's LPU technology")
+
+    # Sidebar Settings
+    with st.sidebar:
+        st.title("⚙️ Settings")
+        st.session_state.selected_model = st.selectbox(
+            "AI Model",
+            list(MODEL_INFO.keys()),
+            format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)"
+        )
+        
+        if st.button("🧹 Clear Chat History", use_container_width=True):
+            st.session_state.messages = []
+            st.session_state.response_times = []
+            st.rerun()
+
+        st.divider()
+        st.markdown(f"""
+        <div class="developer-section">
+            <h4 style='color: var(--primary-color);'>Developed by {DEVELOPER}</h4>
+            <div style='margin-top: 1.5rem;'>
+                <a href="mailto:waqaskhos99@gmail.com">
+                    <img src="https://img.icons8.com/color/48/000000/gmail.png" class="social-icon" alt="Email">
+                </a>
+                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
+                    <img src="https://img.icons8.com/color/48/000000/linkedin.png" class="social-icon" alt="LinkedIn">
+                </a>
+                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
+                    <img src="https://img.icons8.com/color/48/000000/github.png" class="social-icon" alt="GitHub">
+                </a>
+            </div>
+            <p style='margin-top: 1rem; font-size: 0.9rem;'>waqaskhos99@gmail.com</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Display chat history
     assistant_idx = 0
@@ -177,7 +204,7 @@ def main():
             
             start_time = time.time()
             response = client.chat.completions.create(
-                model=selected_model,
+                model=st.session_state.selected_model,
                 messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[-4:]],
                 temperature=0.7,
                 stream=True
