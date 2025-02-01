@@ -27,7 +27,6 @@ def inject_custom_css():
             overflow-x: hidden;
         }}
         
-        /* Message Bubbles */
         .assistant-message {{
             background: linear-gradient(145deg, rgba(46, 49, 146, 0.2), rgba(27, 27, 50, 0.3));
             border-radius: 20px;
@@ -48,7 +47,6 @@ def inject_custom_css():
             animation: slideIn 0.3s ease-out;
         }}
         
-        /* Avatar and Animation */
         .assistant-avatar {{
             width: 60px;
             height: 60px;
@@ -57,7 +55,6 @@ def inject_custom_css():
             animation: float 3s ease-in-out infinite;
         }}
         
-        /* Boat Animation */
         .boat {{
             position: fixed;
             bottom: -50px;
@@ -68,7 +65,6 @@ def inject_custom_css():
             pointer-events: none;
         }}
         
-        /* Response Time */
         .response-time {{
             font-size: 0.8rem;
             color: var(--primary-color);
@@ -77,13 +73,11 @@ def inject_custom_css():
             opacity: 0.8;
         }}
         
-        /* Sidebar Styling */
         .sidebar .sidebar-content {{
             background: linear-gradient(160deg, #16213e 0%, #1a1a2e 100%);
             border-right: 1px solid rgba(78, 204, 163, 0.1);
         }}
         
-        /* Keyframe Animations */
         @keyframes float {{
             0%, 100% {{ transform: translateY(0px); }}
             50% {{ transform: translateY(-15px); }}
@@ -99,7 +93,6 @@ def inject_custom_css():
             to {{ transform: translateY(0); opacity: 1; }}
         }}
         
-        /* Mobile Optimization */
         @media (max-width: 768px) {{
             .assistant-avatar {{ width: 45px; height: 45px; }}
             .boat {{ display: none; }}
@@ -115,7 +108,7 @@ def create_sidebar():
             "AI Model", 
             list(MODEL_INFO.keys()),
             format_func=lambda x: f"{x.split('-')[0].title()} ({'32768' if 'mixtral' in x else '4096'} tokens)",
-            help=MODEL_INFO.get(selected_model, "Select an AI model")
+            help="Select an AI model: " + "; ".join([f"{k}: {v}" for k, v in MODEL_INFO.items()])
         )
         
         if st.button("🧹 Clear Chat History", use_container_width=True, type="secondary"):
@@ -146,6 +139,7 @@ def create_sidebar():
             </div>
         </div>
         """, unsafe_allow_html=True)
+        st.session_state.selected_model = selected_model
 
 def display_chat_messages():
     assistant_idx = 0
@@ -171,7 +165,7 @@ def display_chat_messages():
                     </div>
                 """, unsafe_allow_html=True)
 
-def handle_chat_input(selected_model):
+def handle_chat_input():
     if prompt := st.chat_input("Type your message..."):
         try:
             client = Groq(api_key=st.secrets.GROQ.API_KEY)
@@ -179,7 +173,7 @@ def handle_chat_input(selected_model):
             
             start_time = time.time()
             response = client.chat.completions.create(
-                model=selected_model,
+                model=st.session_state.selected_model,
                 messages=[{"role": m["role"], "content": m["content"]} 
                          for m in st.session_state.messages[-4:]],
                 temperature=0.7,
@@ -225,7 +219,7 @@ def main():
 
     create_sidebar()
     display_chat_messages()
-    handle_chat_input(st.session_state.selected_model if 'selected_model' in st.session_state else "mixtral-8x7b-32768")
+    handle_chat_input()
 
 if __name__ == "__main__":
     main()
