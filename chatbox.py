@@ -89,7 +89,7 @@ def main():
         st.session_state.response_times = []
 
     with st.sidebar:
-        st.title(⚙️ Settings")
+        st.title("⚙️ Settings")
         selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
                                     format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
         
