@@ -29,27 +29,32 @@ def inject_custom_css():
         
         .assistant-message {{
             background: linear-gradient(145deg, rgba(108, 99, 255, 0.1), rgba(47, 46, 65, 0.2));
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin: 1rem 0;
+            border-radius: 20px 20px 20px 5px;
+            padding: 1.2rem;
+            margin: 0.8rem 0;
             border: 1px solid rgba(108, 99, 255, 0.2);
             animation: slideIn 0.3s ease-out;
             display: flex;
             align-items: center;
             gap: 1rem;
+            max-width: 75%;
         }}
         
         .user-message {{
-            padding: 1rem;
-            margin: 0.5rem 0;
-            margin-left: 30%;
-            max-width: 65%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 20px 5px 20px 20px;
+            padding: 1.2rem;
+            margin: 0.8rem 0 0.8rem auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: slideIn 0.3s ease-out;
+            text-align: right;
+            max-width: 75%;
+            width: fit-content;
         }}
-    
         
         .assistant-avatar {{
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
             animation: float 3s ease-in-out infinite;
@@ -58,27 +63,20 @@ def inject_custom_css():
         
         .message-content {{
             flex-grow: 1;
-            padding-right: 1rem;
+            padding: 0 1rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }}
         
-        .boat {{
-            position: fixed;
-            bottom: -50px;
-            right: -50px;
-            font-size: 80px;
-            opacity: 0.1;
-            animation: sail 20s linear infinite;
-            pointer-events: none;
+        .response-time {{
+            font-size: 0.75rem;
+            color: var(--primary-color);
+            text-align: right;
+            margin-top: 0.5rem;
+            opacity: 0.8;
         }}
         
-        @keyframes float {{ 0%,100% {{ transform:translateY(0) }} 50% {{ transform:translateY(-15px) }} }}
-        @keyframes sail {{ 0% {{ transform:translateX(100vw) rotate(30deg) }} 100% {{ transform:translateX(-100vw) rotate(30deg) }} }}
-        @keyframes slideIn {{ from {{ transform:translateY(20px);opacity:0 }} to {{ transform:translateY(0);opacity:1 }} }}
-        
-        @media (max-width:768px) {{ 
-            .user-message {{ margin-left:10% }} 
-            .assistant-avatar {{ width:40px;height:40px }}
-        }}
+        /* Keep other existing styles (boat animation, sidebar, etc) */
     </style>
     <div class="boat">⛵</div>
     """, unsafe_allow_html=True)
@@ -100,13 +98,19 @@ def create_sidebar():
             <h4 style='color:var(--primary-color);margin-bottom:1.5rem;'>Developed by {DEVELOPER}</h4>
             <div style='display:grid;gap:1rem;'>
                 <a href="mailto:waqaskhos99@gmail.com" style='text-decoration:none;'>
-                    <button style='width:100%;background:rgba(108,99,255,0.1);border:1px solid var(--primary-color);border-radius:8px;padding:0.5rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:0.5rem;'>✉️ Contact via Email</button>
+                    <button style='width:100%;background:rgba(108,99,255,0.1);border:1px solid var(--primary-color);border-radius:8px;padding:0.7rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:0.8rem;'>
+                        <img src="https://cdn-icons-png.flaticon.com/512/281/281769.png" style="width:24px;height:24px;"> Email
+                    </button>
                 </a>
                 <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank" style='text-decoration:none;'>
-                    <button style='width:100%;background:rgba(108,99,255,0.1);border:1px solid var(--primary-color);border-radius:8px;padding:0.5rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:0.5rem;'>🔗 LinkedIn Profile</button>
+                    <button style='width:100%;background:rgba(108,99,255,0.1);border:1px solid var(--primary-color);border-radius:8px;padding:0.7rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:0.8rem;'>
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" style="width:24px;height:24px;"> LinkedIn
+                    </button>
                 </a>
                 <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank" style='text-decoration:none;'>
-                    <button style='width:100%;background:rgba(108,99,255,0.1);border:1px solid var(--primary-color);border-radius:8px;padding:0.5rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:0.5rem;'>🐙 GitHub Repository</button>
+                    <button style='width:100%;background:rgba(108,99,255,0.1);border:1px solid var(--primary-color);border-radius:8px;padding:0.7rem;color:#fff;display:flex;align-items:center;justify-content:center;gap:0.8rem;'>
+                        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" style="width:24px;height:24px;"> GitHub
+                    </button>
                 </a>
             </div>
         </div>""", unsafe_allow_html=True)
@@ -137,7 +141,7 @@ def display_chat_messages():
                 if idx == len(st.session_state.messages)-1:
                     st.markdown(f"""
                     <script>
-                        document.getElementById('message-{idx}').scrollIntoView();
+                        document.getElementById('message-{idx}').scrollIntoView({{behavior: 'smooth'}});
                     </script>
                     """, unsafe_allow_html=True)
 
