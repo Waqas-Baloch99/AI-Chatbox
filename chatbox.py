@@ -2,29 +2,34 @@ import streamlit as st
 from groq import Groq
 import time
 
+# Developer Info
 DEVELOPER = "Waqas Baloch"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
+
+# Available AI Models
 MODEL_INFO = {
     "mixtral-8x7b-32768": "High-quality text generation with 8 experts mixture",
     "llama-3.3-70b-versatile": "Large 70B parameter model for complex tasks",
     "deepseek-r1-distill-llama-70b": "Distilled version optimized for speed"
 }
+
+# Inject Custom CSS for Styling
 def inject_custom_css():
-    st.markdown(f"""
+    st.markdown("""
     <style>
-        :root {{
+        :root {
             --primary-color: #4ecca3;
             --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
-        }}
+        }
         
-        .main {{
+        .main {
             background: var(--bg-gradient); 
             color: #e6e6e6;
             padding: 1.5rem !important;
             font-family: 'Segoe UI', sans-serif;
-        }}
+        }
         
-        .assistant-message {{
+        .assistant-message {
             display: flex;
             align-items: flex-start;
             gap: 1.2rem;
@@ -34,9 +39,9 @@ def inject_custom_css():
             margin: 1rem 0;
             max-width: 80%;
             width: fit-content;
-        }}
+        }
         
-        .user-message {{
+        .user-message {
             background: rgba(78, 204, 163, 0.15);
             padding: 1rem 1.5rem;
             border-radius: 20px 5px 20px 20px;
@@ -49,32 +54,31 @@ def inject_custom_css():
             border: 1px solid rgba(78, 204, 163, 0.3);
             font-size: 0.95rem;
             line-height: 1.4;
-        }}
+        }
 
-        @keyframes slideIn {{
-            from {{
+        @keyframes slideIn {
+            from {
                 transform: translateX(20px);
                 opacity: 0;
-            }}
-            to {{
+            }
+            to {
                 transform: translateX(0);
                 opacity: 1;
-            }}
-        }}  <!-- Fixed missing closing brace here -->
+            }
+        }
         
-        .assistant-avatar {{
+        .assistant-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
             animation: float 3s ease-in-out infinite;
-        }}
-        
-        /* Rest of the CSS remains the same */
+        }
     </style>
     """, unsafe_allow_html=True)
-    </style>
-    """, unsafe_allow_html=True)def main():
+
+# Main App
+def main():
     st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
     inject_custom_css()
 
@@ -86,8 +90,9 @@ def inject_custom_css():
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
 
+    # Sidebar Settings
     with st.sidebar:
-        st.title("⚙️ Settings")  # Fixed syntax error
+        st.title("⚙️ Settings")  
         selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
                                     format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
         
@@ -111,12 +116,11 @@ def inject_custom_css():
                     <img src="https://img.icons8.com/color/48/000000/github.png" class="social-icon" alt="GitHub">
                 </a>
             </div>
-            <p style='margin-top: 1rem; font-size: 0.9rem;'>
-                waqaskhos99@gmail.com
-            </p>
+            <p style='margin-top: 1rem; font-size: 0.9rem;'>waqaskhos99@gmail.com</p>
         </div>
         """, unsafe_allow_html=True)
 
+    # Display chat history
     assistant_idx = 0
     for message in st.session_state.messages:
         if message["role"] == "assistant":
@@ -136,17 +140,17 @@ def inject_custom_css():
             with st.chat_message("user", avatar="👤"):
                 st.markdown(f"<div class='user-message'>{message['content']}</div>", unsafe_allow_html=True)
 
+    # User Input & AI Response
     if prompt := st.chat_input("Type your message..."):
         try:
-            client = Groq(api_key=st.secrets.GROQ.API_KEY)
+            client = Groq(api_key=st.secrets["GROQ"]["API_KEY"])  # Fixed secret access
             
             st.session_state.messages.append({"role": "user", "content": prompt})
             
             start_time = time.time()
             response = client.chat.completions.create(
                 model=selected_model,
-                messages=[{"role": m["role"], "content": m["content"]} 
-                         for m in st.session_state.messages[-4:]],
+                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[-4:]],
                 temperature=0.7,
                 stream=True
             )
