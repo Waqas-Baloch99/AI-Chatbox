@@ -33,23 +33,31 @@ def inject_custom_css():
             padding: 1.2rem;
             margin: 0.8rem 0;
             border: 1px solid rgba(108, 99, 255, 0.2);
-            animation: slideIn 0.3s ease-out;
             display: flex;
             align-items: center;
             gap: 1rem;
             max-width: 75%;
             animation: fadeIn 0.5s ease-out;
-
         }}
         
-       
+        .user-message {{
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 20px 5px 20px 20px;
+            padding: 1.2rem;
+            margin: 0.8rem 0 0.8rem auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: right;
+            max-width: 75%;
+            width: fit-content;
+            animation: slideIn 0.3s ease-out;
+        }}
         
         .assistant-avatar {{
             width: 45px;
             height: 45px;
             border-radius: 50%;
             box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
-            animation: float 3s ease-in-out infinite bounceIn 0.6s ease-out;
+            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
             flex-shrink: 0;
         }}
         
@@ -68,11 +76,39 @@ def inject_custom_css():
             opacity: 0.8;
         }}
         
-        /* Keep other existing styles (boat animation, sidebar, etc) */
+        @keyframes float {{
+            0%, 100% {{ transform: translateY(0px); }}
+            50% {{ transform: translateY(-15px); }}
+        }}
+        
+        @keyframes bounceIn {{
+            0% {{ transform: scale(0.5); opacity: 0; }}
+            50% {{ transform: scale(1.05); opacity: 0.7; }}
+            70% {{ transform: scale(0.95); opacity: 0.9; }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
+        
+        @keyframes slideIn {{
+            from {{ transform: translateY(20px); opacity: 0; }}
+            to {{ transform: translateY(0); opacity: 1; }}
+        }}
+        
+        @keyframes fadeIn {{
+            from {{ opacity: 0; }}
+            to {{ opacity: 1; }}
+        }}
+        
+        @media (max-width: 768px) {{
+            .assistant-message, .user-message {{
+                max-width: 85%;
+            }}
+        }}
     </style>
     <div class="boat">⛵</div>
     """, unsafe_allow_html=True)
 
+# Rest of the code remains the same as in the previous version
+# [Keep all other functions (create_sidebar, display_chat_messages, handle_chat_input, main) unchanged]
 def create_sidebar():
     with st.sidebar:
         st.title("⚙️ Settings")
