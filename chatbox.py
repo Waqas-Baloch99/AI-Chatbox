@@ -19,11 +19,11 @@ def inject_custom_css():
     <style>
         :root {
             --primary-color: #4ecca3;
-            --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
+            --bg-gradient: linear-gradient(135deg, #2a9d8f, #264653);
         }
         
         .main {
-            background: var(--bg-gradient); 
+            background: var(--bg-gradient) !important;
             color: #e6e6e6;
             padding: 1.5rem !important;
             font-family: 'Segoe UI', sans-serif;
@@ -34,15 +34,16 @@ def inject_custom_css():
             align-items: flex-start;
             gap: 1.2rem;
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(42, 157, 143, 0.15);
             border-radius: 15px;
             margin: 1rem 0;
-            max-width: 80%;
+            max-width: 85%;
             width: fit-content;
+            border: 1px solid rgba(78, 204, 163, 0.2);
         }
         
         .user-message {
-            background: rgba(78, 204, 163, 0.15);
+            background: rgba(78, 204, 163, 0.25);
             padding: 1rem 1.5rem;
             border-radius: 20px 5px 20px 20px;
             margin: 0.8rem 0 0.8rem auto;
@@ -51,7 +52,7 @@ def inject_custom_css():
             word-break: break-word;
             animation: slideIn 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(78, 204, 163, 0.3);
+            border: 1px solid rgba(78, 204, 163, 0.4);
             font-size: 0.95rem;
             line-height: 1.4;
         }
@@ -72,7 +73,19 @@ def inject_custom_css():
             height: 50px;
             border-radius: 50%;
             box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
-            animation: float 3s ease-in-out infinite;
+        }
+        
+        .response-time {
+            color: #4ecca3 !important;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .message-content {
+            width: calc(100% - 60px);
+            padding-right: 10px;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -143,7 +156,7 @@ def main():
     # User Input & AI Response
     if prompt := st.chat_input("Type your message..."):
         try:
-            client = Groq(api_key=st.secrets["GROQ"]["API_KEY"])  # Fixed secret access
+            client = Groq(api_key=st.secrets["GROQ"]["API_KEY"])
             
             st.session_state.messages.append({"role": "user", "content": prompt})
             
