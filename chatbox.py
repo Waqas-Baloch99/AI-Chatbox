@@ -38,8 +38,8 @@ def inject_custom_css():
             padding: 1rem;
             background: rgba(42, 157, 143, 0.15);
             border-radius: 15px;
-            margin: 1rem 0;
-            max-width: 85%;
+            margin: 1rem 0 1rem 10px;
+            max-width: 82%;
             width: fit-content;
             border: 1px solid rgba(78, 204, 163, 0.2);
             position: relative;
@@ -48,20 +48,20 @@ def inject_custom_css():
         
         /* User Message Styling */
         .user-message {
-        background: rgba(99, 102, 241, 0.25);
-    padding: 1rem 1.5rem;
-    border-radius: 20px 20px 5px 20px;
-    margin: 0.8rem 0 0.8rem auto !important;  /* Force right alignment */
-    max-width: 75%;
-    width: fit-content;
-    word-break: break-word;
-    animation: slideInRight 0.3s ease-out;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    font-size: 1rem;
-    line-height: 1.5;
-    position: relative;
-    text-align: left;
+            background: rgba(99, 102, 241, 0.25);
+            padding: 1rem 1.5rem;
+            border-radius: 20px 20px 5px 20px;
+            margin: 0.8rem 10px 0.8rem auto !important;
+            max-width: 78%;
+            width: fit-content;
+            word-break: break-word;
+            animation: slideInRight 0.3s ease-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            font-size: 1rem;
+            line-height: 1.5;
+            position: relative;
+            text-align: left;
         }
 
         /* Animations */
@@ -121,9 +121,36 @@ def inject_custom_css():
         
         /* Container alignment */
         .stChatMessage {
-            max-width: 90%;
+            max-width: 94%;
             margin-left: auto;
             margin-right: auto;
+            padding: 0 1%;
+        }
+        
+        /* User Avatar Alignment Fix */
+        [data-testid="stChatMessage"] [alt="👤"] {
+            margin-left: auto !important;
+            margin-right: 12px !important;
+            order: 2 !important;
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .assistant-message {
+                max-width: 88%;
+                margin-left: 5px;
+            }
+            .user-message {
+                max-width: 85%;
+                margin-right: 5px !important;
+            }
+            .stChatMessage {
+                max-width: 98% !important;
+            }
+            .assistant-avatar {
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
     """, unsafe_allow_html=True)
@@ -195,7 +222,13 @@ def main():
                 assistant_idx += 1
         else:
             with st.chat_message("user", avatar="👤"):
-                st.markdown(f"<div class='user-message'>{message['content']}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style="width: 100%; display: flex; justify-content: flex-end;">
+                        <div class='user-message'>
+                            {message['content']}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
     # User Input & AI Response
     if prompt := st.chat_input("Type your message..."):
@@ -217,18 +250,28 @@ def main():
             for chunk in response:
                 if chunk.choices[0].delta.content:
                     full_response.append(chunk.choices[0].delta.content)
+                    formatted_response = "".join(full_response).strip()
+                    # Fix common formatting issues in real-time
+                    formatted_response = formatted_response.replace("  ", " ")
+                    formatted_response = formatted_response.replace(".However", ". However")
+                    
                     message_placeholder.markdown(f"""
                         <div class="assistant-message">
                             <img src="{BOT_AVATAR}" class="assistant-avatar">
                             <div class="message-content">
-                                {"".join(full_response).strip()}
+                                {formatted_response}
                                 <div class="response-time generating-text">Generating</div>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
 
             response_time = time.time() - start_time
-            st.session_state.messages.append({"role": "assistant", "content": "".join(full_response).strip()})
+            # Final formatting cleanup
+            final_response = "".join(full_response).strip()
+            final_response = final_response.replace("  ", " ")
+            final_response = final_response.replace(".However", ". However")
+            
+            st.session_state.messages.append({"role": "assistant", "content": final_response})
             st.session_state.response_times.append(response_time)
             st.rerun()
 
