@@ -36,17 +36,31 @@ def inject_custom_css():
             max-width: 80%;
             width: fit-content;
         }}
-        
         .user-message {{
-    background: rgba(78, 204, 163, 0.1);
-    display:inline-flex;
-    border-radius: 15px;
-    margin: 0.5rem 0 0.5rem auto;
-    max-width: 80%;
+    background: rgba(78, 204, 163, 0.15);
+    padding: 1rem 1.5rem;
+    border-radius: 20px 5px 20px 20px;
+    margin: 0.8rem 0 0.8rem auto;
+    max-width: 75%;
     width: fit-content;
     word-break: break-word;
     animation: slideIn 0.3s ease-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(78, 204, 163, 0.3);
+    font-size: 0.95rem;
+    line-height: 1.4;
 }}
+
+@keyframes slideIn {
+    from {{
+        transform: translateX(20px);
+        opacity: 0;
+    }}
+    to {{
+        transform: translateX(0);
+        opacity: 1;
+    }}
+}
         .assistant-avatar {{
             width: 50px;
             height: 50px;
