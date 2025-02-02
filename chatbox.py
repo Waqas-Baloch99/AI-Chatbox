@@ -17,20 +17,109 @@ def inject_custom_css():
             --primary-color: #4ecca3;
             --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
         }}
-        .main {{ background: var(--bg-gradient); color: #e6e6e6; padding: 1.5rem !important; font-family: 'Segoe UI', sans-serif; }}
-        .assistant-message {{ display: flex; align-items: flex-start; gap: 1.2rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 15px; margin: 1rem 0; position: relative; animation: fadeIn 0.5s ease-out; }}
-        .assistant-avatar {{ width: 50px; height: 50px; border-radius: 50%; box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3); animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out; }}
-        .message-content {{ flex-grow: 1; }}
-        .response-time {{ font-size: 0.8rem; color: var(--primary-color); text-align: right; margin-top: 0.5rem; }}
-        @media (max-width: 768px) {{ .assistant-avatar {{ width: 40px; height: 40px; }} .stChatInput {{ bottom: 20px; padding: 0 1rem; }} }}
+        .main {{ 
+            background: var(--bg-gradient); 
+            color: #e6e6e6; 
+            padding: 1.5rem !important; 
+            font-family: 'Segoe UI', sans-serif; 
+        }}
+        .assistant-message {{ 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 1.2rem; 
+            padding: 1rem; 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: 15px; 
+            margin: 1rem 0; 
+            position: relative; 
+            animation: fadeIn 0.5s ease-out; 
+        }}
+        .assistant-avatar {{ 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3); 
+            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out; 
+        }}
+        .message-content {{ 
+            flex-grow: 1; 
+            overflow-x: auto;
+        }}
+        .response-time {{ 
+            font-size: 0.8rem; 
+            color: var(--primary-color); 
+            text-align: right; 
+            margin-top: 0.5rem; 
+        }}
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {{ 
+            .main {{ 
+                padding: 1rem !important; 
+                min-width: unset !important;
+            }}
+            .assistant-message {{
+                flex-direction: column;
+                gap: 0.8rem;
+                padding: 0.8rem;
+            }}
+            .assistant-avatar {{
+                width: 40px; 
+                height: 40px;
+            }}
+            .stChatInput {{ 
+                bottom: 20px; 
+                padding: 0 1rem; 
+                position: fixed !important;
+                background: var(--bg-gradient);
+                z-index: 100;
+            }}
+            .stChatInput textarea {{
+                min-height: 40px !important;
+                font-size: 0.9rem !important;
+            }}
+            .sidebar .sidebar-content {{
+                width: 200px !important;
+            }}
+            .message-content {{
+                font-size: 0.95rem;
+            }}
+            .response-time {{
+                font-size: 0.7rem;
+            }}
+        }}
+        /* Very Small Screens */
+        @media (max-width: 480px) {{
+            .assistant-avatar {{
+                width: 35px; 
+                height: 35px;
+            }}
+            .stChatInput {{
+                bottom: 10px;
+                padding: 0 0.5rem;
+            }}
+            .stChatInput textarea {{
+                font-size: 0.85rem !important;
+            }}
+            .stMarkdown h1 {{
+                font-size: 1.5rem !important;
+            }}
+        }}
         @keyframes fadeIn {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
-        @keyframes bounceIn {{ 0% {{ transform: scale(0.5); opacity: 0; }} 50% {{ transform: scale(1.05); opacity: 0.7; }} 70% {{ transform: scale(0.95); opacity: 0.9; }} 100% {{ transform: scale(1); opacity: 1; }} }}
-        @keyframes float {{ 0%, 100% {{ transform: translateY(0px); }} 50% {{ transform: translateY(-20px); }} }}
+        @keyframes bounceIn {{ 
+            0% {{ transform: scale(0.5); opacity: 0; }} 
+            50% {{ transform: scale(1.05); opacity: 0.7; }} 
+            70% {{ transform: scale(0.95); opacity: 0.9; }} 
+            100% {{ transform: scale(1); opacity: 1; }} 
+        }}
+        @keyframes float {{ 
+            0%, 100% {{ transform: translateY(0px); }} 
+            50% {{ transform: translateY(-20px); }} 
+        }}
     </style>
     """, unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(page_title="AI Chatbox", page_icon="🤖")
+    st.set_page_config(page_title="AI Chatbox", page_icon="🤖", layout="centered")
     inject_custom_css()
 
     st.title("💬 AI Chatbox")
@@ -41,7 +130,7 @@ def main():
 
     with st.sidebar:
         st.title("⚙️ Settings")
-        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), format_func=lambda x: MODEL_INFO[x]) # Display model descriptions
+        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), format_func=lambda x: MODEL_INFO[x])
 
         if st.button("🧹 Clear Chat History", use_container_width=True):
             st.session_state.messages = []
@@ -49,19 +138,19 @@ def main():
 
         st.divider()
 
-        st.markdown("""
+        st.markdown(f"""
         <div style='text-align:center; color:#4ecca3; padding: 1rem 0; border-top: 1px solid #4ecca3; border-bottom: 1px solid #4ecca3;'>  
-            <div style="font-weight: bold; margin-bottom: 0.5rem;">Developed by Waqas Baloch</div>
-            <div style="display: flex; justify-content: center; gap: 1rem;">
-                <a href="mailto:waqaskhos99@gmail.com" target="_blank" style="display: flex; align-items: center;">
+            <div style="font-weight: bold; margin-bottom: 0.5rem;">Developed by {DEVELOPER}</div>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <a href="mailto:waqaskhos99@gmail.com" target="_blank" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
                     <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email" style="width: 24px; height: 24px; margin-right: 0.5rem;"/>
                     <span style="font-size: 0.9rem;">Email</span>
                 </a>
-                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank" style="display: flex; align-items: center;">
+                <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
                     <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn" style="width: 24px; height: 24px; margin-right: 0.5rem;"/>
                     <span style="font-size: 0.9rem;">LinkedIn</span>
                 </a>
-                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank" style="display: flex; align-items: center;">
+                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
                     <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub" style="width: 24px; height: 24px; margin-right: 0.5rem;"/>
                     <span style="font-size: 0.9rem;">GitHub</span>
                 </a>
@@ -72,7 +161,7 @@ def main():
     for message in st.session_state.messages:
         with st.chat_message(message["role"], avatar="👤" if message["role"] == "user" else BOT_AVATAR):
             st.markdown(message["content"])
-            if "response_time" in message and message["role"] == "assistant":  # Only show for assistant messages
+            if "response_time" in message and message["role"] == "assistant":
                 st.markdown(f'<div class="response-time">Response time: {message["response_time"]:.2f}s</div>', unsafe_allow_html=True)
 
     if prompt := st.chat_input("Type your message..."):
@@ -112,7 +201,6 @@ def main():
             st.error(f"⚠️ Error: {str(e)}")
             if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
-
 
 if __name__ == "__main__":
     main()
