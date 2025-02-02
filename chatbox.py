@@ -77,10 +77,10 @@ def inject_custom_css():
     """, unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(page_title="Groq AI Chatbox", page_icon="🤖")
+    st.set_page_config(page_title="AI Chatbox", page_icon="🤖")
     inject_custom_css()
 
-    st.title("💬 Groq AI Chatbox")
+    st.title("💬 AI Chatbox")
     st.caption("Real-time AI conversations powered by Groq's LPU technology")
 
     if "messages" not in st.session_state:
