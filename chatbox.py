@@ -1,167 +1,180 @@
-import streamlit as st
-import requests
-import pytesseract
-from PIL import Image
-import io
-import os
-import groq  # Ensure you have installed groq (`pip install groq`)
+can you add the option of image upload so user can ask the question using image"import streamlit as st
+from groq import Groq
+import time
 
-# Load API key from Streamlit secrets
-API_KEY = st.secrets["GROQ"]["API_KEY"]  # Ensure API key is set in secrets
-BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"  # Avatar URL
+DEVELOPER = "Waqas Baloch"
+BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
+MODEL_INFO = {
+    "mixtral-8x7b-32768": "High-quality text generation with 8 experts mixture",
+    "llama-3.3-70b-versatile": "Large 70B parameter model for complex tasks",
+    "deepseek-r1-distill-llama-70b": "Distilled version optimized for speed"
+}
 
-# Initialize Groq client
-client = groq.Client(api_key=API_KEY)
+def inject_custom_css():
+    st.markdown(f"""
+    <style>
+        :root {{
+            --primary-color: #4ecca3;
+            --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
+        }}
+        
+        .main {{
+            background: var(--bg-gradient); 
+            color: #e6e6e6;
+            padding: 1.5rem !important;
+            font-family: 'Segoe UI', sans-serif;
+        }}
+        
+        .assistant-message {{
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin: 1rem 0;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }}
+        
+        .assistant-avatar {{
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
+            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
+        }}
+        
+        .response-time {{
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            text-align: right;
+            margin-top: 0.5rem;
+        }}
+        
+        @media (max-width: 768px) {{
+            .assistant-avatar {{ width: 40px; height: 40px; }}
+            .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
+        }}
+        
+        @keyframes fadeIn {{
+            from {{ opacity: 0; }}
+            to {{ opacity: 1; }}
+        }}
+        
+        @keyframes bounceIn {{
+            0% {{ transform: scale(0.5); opacity: 0; }}
+            50% {{ transform: scale(1.05); opacity: 0.7; }}
+            70% {{ transform: scale(0.95); opacity: 0.9; }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
+        
+        @keyframes float {{
+            0%, 100% {{ transform: translateY(0px); }}
+            50% {{ transform: translateY(-20px); }}
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
-# Streamlit UI Setup
-st.set_page_config(page_title="AI Chatbot with OCR", page_icon="🤖", layout="wide")
-st.title("🤖 AI Chatbot with OCR")
+def main():
+    st.set_page_config(page_title="AI Chatbox", page_icon="🤖")
+    inject_custom_css()
 
-# Model options for selection
-MODEL_OPTIONS = ["llama3-8b-8192", "gpt-4", "gpt-3.5-turbo"]
-selected_model = st.selectbox("Select AI Model", MODEL_OPTIONS)
+    st.title("💬 AI Chatbox")
+    st.caption("Real-time AI conversations powered by Groq's LPU technology")
 
-# Developer Mode Option (Show extra details like errors)
-developer_mode = st.checkbox("Enable Developer Mode (Show Errors)")
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    if "response_times" not in st.session_state:
+        st.session_state.response_times = []
 
-# File Uploader for OCR (will be inside a text area-like space)
-uploaded_file = st.file_uploader("Upload an image (JPG/PNG) for OCR", type=["png", "jpg", "jpeg"])
+    with st.sidebar:
+        st.title("⚙️ Settings")
+        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
+                                    format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
+        
+        if st.button("🧹 Clear Chat History", use_container_width=True):
+            st.session_state.messages = []
+            st.session_state.response_times = []
+            st.rerun()
 
-# Extract text from image
-def extract_text_from_image(image_file):
-    try:
-        image = Image.open(image_file)
-        text = pytesseract.image_to_string(image)
-        return text.strip()
-    except Exception as e:
-        return f"Error processing image: {str(e)}"
-
-# Chat Interface
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# Display previous messages
-for msg in st.session_state.messages:
-    st.markdown(
-        f"""
-        <div class="{'user-message' if msg['role'] == 'user' else 'assistant-message'}">
-            <img src="{msg['avatar']}" class="{'user-avatar' if msg['role'] == 'user' else 'assistant-avatar'}">
-            <div class="message-content">{msg['content']}</div>
+        st.divider()
+        st.markdown(f"""
+        <div style='text-align:center;color:#4ecca3;'>
+            Developed by {DEVELOPER}
+            <br>
+            <a href="mailto:waqaskhos99@gmail.com">
+                <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email Icon"/> waqaskhos99@gmail.com
+            </a>
+            <br>
+            <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
+                <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn Icon"/> LinkedIn
+            </a>
+            <br>
+            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
+                <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub Icon"/> GitHub Repository
+            </a>
         </div>
-        """, unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
 
-# Get user input (Text Area for messages and OCR-related text)
-user_input = st.text_area("Enter your message:", height=100)
+    assistant_idx = 0
+    for message in st.session_state.messages:
+        if message["role"] == "assistant":
+            with st.chat_message("assistant"):
+                st.markdown(f"""
+                    <div class="assistant-message">
+                        <img src="{BOT_AVATAR}" class="assistant-avatar">
+                        <div class="message-content">
+                            {message["content"]}
+                            {f'<div class="response-time">Response time: {st.session_state.response_times[assistant_idx]:.2f}s</div>' 
+                             if assistant_idx < len(st.session_state.response_times) else ''}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+                assistant_idx += 1
+        else:
+            with st.chat_message("user", avatar="👤"):
+                st.markdown(message["content"])
 
-# Add an Image Upload button in the text bar area
-if uploaded_file:
-    extracted_text = extract_text_from_image(uploaded_file)
-    st.text_area("Extracted Text:", extracted_text, height=150)
-    
-    # Option to send extracted text to AI model for processing
-    if st.button("Analyze Extracted Text with AI"):
-        with st.spinner("Analyzing text..."):
-            try:
-                response = client.chat.completions.create(
-                    model=selected_model,  # Model selection dynamically
-                    messages=[{"role": "user", "content": extracted_text}],
-                    stream=True,
-                )
-                
-                full_response = []
-                message_placeholder = st.empty()
-                
-                for chunk in response:
-                    if hasattr(chunk.choices[0].delta, "content") and chunk.choices[0].delta.content:
-                        full_response.append(chunk.choices[0].delta.content)
-                        message_placeholder.markdown(
-                            f"""
-                            <div class="assistant-message">
-                                <img src="{BOT_AVATAR}" class="assistant-avatar">
-                                <div class="message-content">{"".join(full_response).strip()}</div>
-                            </div>
-                            """, unsafe_allow_html=True
-                        )
-                
-                assistant_reply = "".join(full_response).strip()
-                st.session_state.messages.append({"role": "assistant", "content": assistant_reply, "avatar": BOT_AVATAR})
-
-            except Exception as e:
-                if developer_mode:
-                    st.error(f"API Error: {str(e)}")
-                else:
-                    st.error("Something went wrong. Please try again.")
-
-# Get the user message and send it to the selected model
-if user_input:
-    # Display user message
-    st.session_state.messages.append({"role": "user", "content": user_input, "avatar": "https://cdn-icons-png.flaticon.com/512/4712/4712105.png"})
-    
-    # Groq API Call
-    with st.spinner("Thinking..."):
+    if prompt := st.chat_input("Type your message..."):
         try:
-            response = client.chat.completions.create(
-                model=selected_model,  # Model selection dynamically
-                messages=[{"role": "user", "content": user_input}],
-                stream=True,
-            )
+            client = Groq(api_key=st.secrets.GROQ.API_KEY)
             
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            
+            start_time = time.time()
+            response = client.chat.completions.create(
+                model=selected_model,
+                messages=[{"role": m["role"], "content": m["content"]} 
+                         for m in st.session_state.messages[-4:]],
+                temperature=0.7,
+                stream=True
+            )
+
             full_response = []
             message_placeholder = st.empty()
-            
-            # Stream AI response
             for chunk in response:
-                if hasattr(chunk.choices[0].delta, "content") and chunk.choices[0].delta.content:
+                if chunk.choices[0].delta.content:
                     full_response.append(chunk.choices[0].delta.content)
-                    message_placeholder.markdown(
-                        f"""
+                    message_placeholder.markdown(f"""
                         <div class="assistant-message">
                             <img src="{BOT_AVATAR}" class="assistant-avatar">
-                            <div class="message-content">{"".join(full_response).strip()}</div>
+                            <div class="message-content">
+                                {"".join(full_response).strip()}
+                                <div class="response-time">Generating...</div>
+                            </div>
                         </div>
-                        """, unsafe_allow_html=True
-                    )
-            
-            assistant_reply = "".join(full_response).strip()
-            st.session_state.messages.append({"role": "assistant", "content": assistant_reply, "avatar": BOT_AVATAR})
+                    """, unsafe_allow_html=True)
+
+            response_time = time.time() - start_time
+            st.session_state.messages.append({"role": "assistant", "content": "".join(full_response).strip()})
+            st.session_state.response_times.append(response_time)
+            st.rerun()
 
         except Exception as e:
-            if developer_mode:
-                st.error(f"API Error: {str(e)}")
-            else:
-                st.error("Something went wrong. Please try again.")
+            st.error(f"⚠️ Error: {str(e)}")
+            if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+                st.session_state.messages.pop()
 
-# CSS Styling for Chat Interface
-st.markdown(
-    """
-    <style>
-    .user-message, .assistant-message {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        border-radius: 10px;
-        margin: 5px 0;
-    }
-    .user-avatar, .assistant-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    .message-content {
-        background-color: #f3f3f3;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .user-message {
-        justify-content: flex-end;
-    }
-    .assistant-message {
-        justify-content: flex-start;
-        background-color: #e0f2f1;
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
-
+if __name__ == "__main__":
+    main()"
