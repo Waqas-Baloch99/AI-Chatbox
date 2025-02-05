@@ -1,6 +1,8 @@
 import streamlit as st
 from groq import Groq
 import time
+from PIL import Image
+import pytesseract  # Requires Tesseract OCR installed
 
 DEVELOPER = "Waqas Baloch"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
@@ -52,9 +54,16 @@ def inject_custom_css():
             margin-top: 0.5rem;
         }}
         
+        .uploaded-image {{
+            max-width: 300px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }}
+        
         @media (max-width: 768px) {{
             .assistant-avatar {{ width: 40px; height: 40px; }}
             .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
+            .uploaded-image {{ max-width: 200px; }}
         }}
         
         @keyframes fadeIn {{
@@ -75,6 +84,15 @@ def inject_custom_css():
         }}
     </style>
     """, unsafe_allow_html=True)
+
+def process_image(uploaded_file):
+    try:
+        image = Image.open(uploaded_file)
+        text = pytesseract.image_to_string(image)
+        return text.strip(), image
+    except Exception as e:
+        st.error(f"Error processing image: {str(e)}")
+        return None, None
 
 def main():
     st.set_page_config(page_title="AI Chatbox", page_icon="🤖")
@@ -117,29 +135,58 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
+    # Display chat messages
     assistant_idx = 0
     for message in st.session_state.messages:
-        if message["role"] == "assistant":
+        role = message["role"]
+        content = message.get("content", "")
+        image = message.get("image", None)
+        
+        if role == "user":
+            with st.chat_message("user", avatar="👤"):
+                if image is not None:
+                    st.image(image, caption="Uploaded Image", use_column_width=True, output_format="PNG")
+                if content:
+                    st.markdown(content)
+        elif role == "assistant":
             with st.chat_message("assistant"):
                 st.markdown(f"""
                     <div class="assistant-message">
                         <img src="{BOT_AVATAR}" class="assistant-avatar">
                         <div class="message-content">
-                            {message["content"]}
+                            {content}
                             {f'<div class="response-time">Response time: {st.session_state.response_times[assistant_idx]:.2f}s</div>' 
                              if assistant_idx < len(st.session_state.response_times) else ''}
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
                 assistant_idx += 1
-        else:
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(message["content"])
 
-    if prompt := st.chat_input("Type your message..."):
+    # Image upload and text input
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        uploaded_file = st.file_uploader("📷 Image", type=["png", "jpg", "jpeg"], 
+                                       help="Upload an image with text to analyze")
+    with col2:
+        prompt = st.chat_input("Type your message...")
+
+    # Handle image upload
+    if uploaded_file is not None and not any(m.get("image") for m in st.session_state.messages[-2:]):
+        ocr_text, processed_image = process_image(uploaded_file)
+        if ocr_text:
+            st.session_state.messages.append({
+                "role": "user",
+                "content": f"**Image Content:**\n{ocr_text}",
+                "image": uploaded_file.getvalue()
+            })
+            st.rerun()
+
+    # Handle text input
+    if prompt:
         try:
             client = Groq(api_key=st.secrets.GROQ.API_KEY)
             
+            # Add user message
             st.session_state.messages.append({"role": "user", "content": prompt})
             
             start_time = time.time()
