@@ -1,4 +1,4 @@
-can you add the option of image upload so user can ask the question using image"import streamlit as st
+import streamlit as st
 from groq import Groq
 import time
 
@@ -177,4 +177,4 @@ def main():
                 st.session_state.messages.pop()
 
 if __name__ == "__main__":
-    main()"
+    main()
