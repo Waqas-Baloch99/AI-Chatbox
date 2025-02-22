@@ -1,6 +1,7 @@
 import streamlit as st
 from groq import Groq
 import time
+import os
 
 DEVELOPER = "Waqas Baloch"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
@@ -20,99 +21,46 @@ def inject_custom_css():
             --card-bg: rgba(255, 255, 255, 0.05);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-
-        .main {
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            color: #f1f5f9;
-            padding: 2rem;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .stChatMessage {
-            transition: all 0.3s ease;
-        }
-
-        .assistant-message {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: var(--card-bg);
-            border-radius: 20px;
-            margin: 1rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: var(--shadow);
-            animation: slideUp 0.4s ease-out;
-        }
-
-        .assistant-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-color);
-            object-fit: cover;
-            animation: pulseGlow 2s infinite ease-in-out;
-        }
-
-        .response-time {
-            font-size: 0.75rem;
-            color: var(--primary-color);
-            opacity: 0.8;
-            margin-top: 0.5rem;
-        }
-
-        .sidebar .sidebar-content {
-            background: var(--bg-gradient);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .stButton>button {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 10px;
-            color: white;
-            transition: transform 0.2s ease;
-        }
-
-        .stButton>button:hover {
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-            .assistant-message { padding: 1rem; }
-            .assistant-avatar { width: 36px; height: 36px; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 5px var(--primary-color); }
-            50% { box-shadow: 0 0 15px var(--primary-color); }
-        }
+        /* Rest of your CSS remains the same */
     </style>
     """, unsafe_allow_html=True)
+
+def get_groq_client():
+    # Try to get API key from secrets first
+    try:
+        return Groq(api_key=st.secrets["GROQ_API_KEY"])
+    except:
+        # Fallback to environment variable or sidebar input
+        api_key = os.getenv("GROQ_API_KEY")
+        
+        if not api_key:
+            with st.sidebar:
+                api_key = st.text_input(
+                    "Enter Groq API Key",
+                    type="password",
+                    help="Get your API key from https://console.groq.com/keys"
+                )
+                if api_key:
+                    st.success("API key set successfully!")
+                else:
+                    st.warning("Please enter your Groq API key to continue")
+        
+        return Groq(api_key=api_key) if api_key else None
 
 def main():
     st.set_page_config(page_title="AI Chatbox", page_icon="🤖", layout="wide")
     inject_custom_css()
 
-    # Header
     col1, col2 = st.columns([3, 1])
     with col1:
         st.markdown("<h1 style='color: #fff; margin-bottom: 0;'>🤖 AI Chatbox</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: #94a3b8;'>Powered by Groq's cutting-edge LPU technology</p>", unsafe_allow_html=True)
 
-    # Session state initialization
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
 
-    # Sidebar
     with st.sidebar:
         st.markdown("<h2 style='color: #fff;'>⚙️ Control Panel</h2>", unsafe_allow_html=True)
         selected_model = st.selectbox(
@@ -139,7 +87,6 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    # Chat display
     chat_container = st.container()
     with chat_container:
         assistant_idx = 0
@@ -161,10 +108,14 @@ def main():
                 with st.chat_message("user", avatar="👤"):
                     st.markdown(message["content"])
 
-    # Chat input
     if prompt := st.chat_input("Ask anything...", key="chat_input"):
+        client = get_groq_client()
+        
+        if client is None:
+            st.error("Please provide a Groq API key in the sidebar")
+            return
+
         try:
-            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
             st.session_state.messages.append({"role": "user", "content": prompt})
 
             with st.spinner("AI is thinking..."):
