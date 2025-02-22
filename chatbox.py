@@ -21,31 +21,9 @@ def inject_custom_css():
             --card-bg: rgba(255, 255, 255, 0.05);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        /* Rest of your CSS remains the same */
+        /* Rest of your CSS remains unchanged */
     </style>
     """, unsafe_allow_html=True)
-
-def get_groq_client():
-    # Try to get API key from secrets first
-    try:
-        return Groq(api_key=st.secrets["GROQ_API_KEY"])
-    except:
-        # Fallback to environment variable or sidebar input
-        api_key = os.getenv("GROQ_API_KEY")
-        
-        if not api_key:
-            with st.sidebar:
-                api_key = st.text_input(
-                    "Enter Groq API Key",
-                    type="password",
-                    help="Get your API key from https://console.groq.com/keys"
-                )
-                if api_key:
-                    st.success("API key set successfully!")
-                else:
-                    st.warning("Please enter your Groq API key to continue")
-        
-        return Groq(api_key=api_key) if api_key else None
 
 def main():
     st.set_page_config(page_title="AI Chatbox", page_icon="🤖", layout="wide")
@@ -55,6 +33,15 @@ def main():
     with col1:
         st.markdown("<h1 style='color: #fff; margin-bottom: 0;'>🤖 AI Chatbox</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: #94a3b8;'>Powered by Groq's cutting-edge LPU technology</p>", unsafe_allow_html=True)
+
+    # Debug secrets availability
+    with st.sidebar:
+        st.markdown("<h3>Debug Info</h3>", unsafe_allow_html=True)
+        if "GROQ_API_KEY" in st.secrets:
+            st.success("API Key found in secrets!")
+        else:
+            st.warning("No GROQ_API_KEY found in st.secrets")
+            st.code("Expected in .streamlit/secrets.toml:\n[GROQ]\nAPI_KEY = 'your-key-here'")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -109,13 +96,9 @@ def main():
                     st.markdown(message["content"])
 
     if prompt := st.chat_input("Ask anything...", key="chat_input"):
-        client = get_groq_client()
-        
-        if client is None:
-            st.error("Please provide a Groq API key in the sidebar")
-            return
-
         try:
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            
             st.session_state.messages.append({"role": "user", "content": prompt})
 
             with st.spinner("AI is thinking..."):
@@ -148,6 +131,8 @@ def main():
             st.session_state.response_times.append(response_time)
             st.rerun()
 
+        except KeyError as e:
+            st.error(f"API Key Error: {str(e)}. Please check your secrets configuration.")
         except Exception as e:
             st.error(f"⚠️ Oops! Something went wrong: {str(e)}")
             if st.session_state.messages[-1]["role"] == "user":
