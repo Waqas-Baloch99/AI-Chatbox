@@ -21,9 +21,24 @@ def inject_custom_css():
             --card-bg: rgba(255, 255, 255, 0.05);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        /* Rest of your CSS remains unchanged */
+        /* Rest of CSS unchanged */
     </style>
     """, unsafe_allow_html=True)
+
+def get_api_key():
+    try:
+        # Access nested GROQ section
+        if "GROQ" in st.secrets and "API_KEY" in st.secrets["GROQ"]:
+            return st.secrets["GROQ"]["API_KEY"]
+        # Fallback to direct access (just in case)
+        elif "GROQ_API_KEY" in st.secrets:
+            return st.secrets["GROQ_API_KEY"]
+        else:
+            st.error("No API key found in secrets. Expected format: [GROQ]\nAPI_KEY = 'your-key'")
+            return None
+    except Exception as e:
+        st.error(f"Error accessing secrets: {str(e)}")
+        return None
 
 def main():
     st.set_page_config(page_title="AI Chatbox", page_icon="🤖", layout="wide")
@@ -34,14 +49,17 @@ def main():
         st.markdown("<h1 style='color: #fff; margin-bottom: 0;'>🤖 AI Chatbox</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: #94a3b8;'>Powered by Groq's cutting-edge LPU technology</p>", unsafe_allow_html=True)
 
-    # Debug secrets availability
+    # Debug info
     with st.sidebar:
-        st.markdown("<h3>Debug Info</h3>", unsafe_allow_html=True)
-        if "GROQ_API_KEY" in st.secrets:
-            st.success("API Key found in secrets!")
-        else:
-            st.warning("No GROQ_API_KEY found in st.secrets")
-            st.code("Expected in .streamlit/secrets.toml:\n[GROQ]\nAPI_KEY = 'your-key-here'")
+        st.markdown("<h3>Secrets Debug</h3>", unsafe_allow_html=True)
+        try:
+            if "GROQ" in st.secrets:
+                st.success("GROQ section found in secrets!")
+                st.write("GROQ secrets contents:", {k: "****" if k == "API_KEY" else v for k, v in st.secrets["GROQ"].items()})
+            else:
+                st.warning("No GROQ section found in secrets")
+        except Exception as e:
+            st.error(f"Secrets debug error: {str(e)}")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -96,9 +114,13 @@ def main():
                     st.markdown(message["content"])
 
     if prompt := st.chat_input("Ask anything...", key="chat_input"):
+        api_key = get_api_key()
+        if not api_key:
+            st.error("Cannot proceed without a valid API key. Check secrets configuration.")
+            return
+
         try:
-            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-            
+            client = Groq(api_key=api_key)
             st.session_state.messages.append({"role": "user", "content": prompt})
 
             with st.spinner("AI is thinking..."):
@@ -131,8 +153,6 @@ def main():
             st.session_state.response_times.append(response_time)
             st.rerun()
 
-        except KeyError as e:
-            st.error(f"API Key Error: {str(e)}. Please check your secrets configuration.")
         except Exception as e:
             st.error(f"⚠️ Oops! Something went wrong: {str(e)}")
             if st.session_state.messages[-1]["role"] == "user":
