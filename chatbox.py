@@ -11,160 +11,186 @@ MODEL_INFO = {
 }
 
 def inject_custom_css():
-    st.markdown(f"""
+    st.markdown("""
     <style>
-        :root {{
-            --primary-color: #4ecca3;
-            --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
-        }}
-        
-        .main {{
-            background: var(--bg-gradient); 
-            color: #e6e6e6;
-            padding: 1.5rem !important;
-            font-family: 'Segoe UI', sans-serif;
-        }}
-        
-        .assistant-message {{
+        :root {
+            --primary-color: #00ddeb;
+            --secondary-color: #7b00ff;
+            --bg-gradient: linear-gradient(145deg, #0f172a, #1e293b);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .main {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: #f1f5f9;
+            padding: 2rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .stChatMessage {
+            transition: all 0.3s ease;
+        }
+
+        .assistant-message {
             display: flex;
             align-items: flex-start;
-            gap: 1.2rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: 20px;
             margin: 1rem 0;
-            position: relative;
-            animation: fadeIn 0.5s ease-out;
-        }}
-        
-        .assistant-avatar {{
-            width: 50px;
-            height: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .assistant-avatar {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
-            animation: float 3s ease-in-out infinite, bounceIn 0.6s ease-out;
-        }}
-        
-        .response-time {{
-            font-size: 0.8rem;
+            border: 2px solid var(--primary-color);
+            object-fit: cover;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .response-time {
+            font-size: 0.75rem;
             color: var(--primary-color);
-            text-align: right;
+            opacity: 0.8;
             margin-top: 0.5rem;
-        }}
-        
-        @media (max-width: 768px) {{
-            .assistant-avatar {{ width: 40px; height: 40px; }}
-            .stChatInput {{ bottom: 20px; padding: 0 1rem; }}
-        }}
-        
-        @keyframes fadeIn {{
-            from {{ opacity: 0; }}
-            to {{ opacity: 1; }}
-        }}
-        
-        @keyframes bounceIn {{
-            0% {{ transform: scale(0.5); opacity: 0; }}
-            50% {{ transform: scale(1.05); opacity: 0.7; }}
-            70% {{ transform: scale(0.95); opacity: 0.9; }}
-            100% {{ transform: scale(1); opacity: 1; }}
-        }}
-        
-        @keyframes float {{
-            0%, 100% {{ transform: translateY(0px); }}
-            50% {{ transform: translateY(-20px); }}
-        }}
+        }
+
+        .sidebar .sidebar-content {
+            background: var(--bg-gradient);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stButton>button {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            transition: transform 0.2s ease;
+        }
+
+        .stButton>button:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .assistant-message { padding: 1rem; }
+            .assistant-avatar { width: 36px; height: 36px; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px var(--primary-color); }
+            50% { box-shadow: 0 0 15px var(--primary-color); }
+        }
     </style>
     """, unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(page_title="AI Chatbox", page_icon="🤖")
+    st.set_page_config(page_title="AI Chatbox", page_icon="🤖", layout="wide")
     inject_custom_css()
 
-    st.title("💬 AI Chatbox")
-    st.caption("Real-time AI conversations powered by Groq's LPU technology")
+    # Header
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown("<h1 style='color: #fff; margin-bottom: 0;'>🤖 AI Chatbox</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #94a3b8;'>Powered by Groq's cutting-edge LPU technology</p>", unsafe_allow_html=True)
 
+    # Session state initialization
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "response_times" not in st.session_state:
         st.session_state.response_times = []
 
+    # Sidebar
     with st.sidebar:
-        st.title("⚙️ Settings")
-        selected_model = st.selectbox("AI Model", list(MODEL_INFO.keys()), 
-                                    format_func=lambda x: f"{x} ({'32768' if 'mixtral' in x else '4096'} tokens)")
-        
-        if st.button("🧹 Clear Chat History", use_container_width=True):
+        st.markdown("<h2 style='color: #fff;'>⚙️ Control Panel</h2>", unsafe_allow_html=True)
+        selected_model = st.selectbox(
+            "Select AI Model",
+            list(MODEL_INFO.keys()),
+            format_func=lambda x: f"{x} - {MODEL_INFO[x]}",
+            help="Choose your preferred AI model"
+        )
+
+        if st.button("Clear Conversation", key="clear", use_container_width=True):
             st.session_state.messages = []
             st.session_state.response_times = []
             st.rerun()
 
-        st.divider()
+        st.markdown("---")
         st.markdown(f"""
-        <div style='text-align:center;color:#4ecca3;'>
-            Developed by {DEVELOPER}
-            <br>
-            <a href="mailto:waqaskhos99@gmail.com">
-                <img src="https://img.icons8.com/color/48/000000/new-post.png" alt="Email Icon"/> waqaskhos99@gmail.com
-            </a>
-            <br>
-            <a href="https://www.linkedin.com/in/waqas-baloch" target="_blank">
-                <img src="https://img.icons8.com/color/48/000000/linkedin.png" alt="LinkedIn Icon"/> LinkedIn
-            </a>
-            <br>
-            <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" target="_blank">
-                <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub Icon"/> GitHub Repository
-            </a>
+        <div style='text-align: center; color: #94a3b8; font-size: 0.9rem;'>
+            <p>Created by <span style='color: var(--primary-color);'>{DEVELOPER}</span></p>
+            <div style='margin-top: 1rem;'>
+                <a href="mailto:waqaskhos99@gmail.com" style='color: var(--primary-color); text-decoration: none;'>📧 Email</a> •
+                <a href="https://www.linkedin.com/in/waqas-baloch" style='color: var(--primary-color); text-decoration: none;'>🔗 LinkedIn</a> •
+                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" style='color: var(--primary-color); text-decoration: none;'>🐙 GitHub</a>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-    assistant_idx = 0
-    for message in st.session_state.messages:
-        if message["role"] == "assistant":
-            with st.chat_message("assistant"):
+    # Chat display
+    chat_container = st.container()
+    with chat_container:
+        assistant_idx = 0
+        for message in st.session_state.messages:
+            if message["role"] == "assistant":
                 st.markdown(f"""
                     <div class="assistant-message">
                         <img src="{BOT_AVATAR}" class="assistant-avatar">
                         <div class="message-content">
                             {message["content"]}
-                            {f'<div class="response-time">Response time: {st.session_state.response_times[assistant_idx]:.2f}s</div>' 
-                             if assistant_idx < len(st.session_state.response_times) else ''}
+                            <div class="response-time">
+                                Response time: {st.session_state.response_times[assistant_idx]:.2f}s
+                            </div>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
                 assistant_idx += 1
-        else:
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(message["content"])
+            else:
+                with st.chat_message("user", avatar="👤"):
+                    st.markdown(message["content"])
 
-    if prompt := st.chat_input("Type your message..."):
+    # Chat input
+    if prompt := st.chat_input("Ask anything...", key="chat_input"):
         try:
-            client = Groq(api_key=st.secrets.GROQ.API_KEY)
-            
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
             st.session_state.messages.append({"role": "user", "content": prompt})
-            
-            start_time = time.time()
-            response = client.chat.completions.create(
-                model=selected_model,
-                messages=[{"role": m["role"], "content": m["content"]} 
-                         for m in st.session_state.messages[-4:]],
-                temperature=0.7,
-                stream=True
-            )
 
-            full_response = []
-            message_placeholder = st.empty()
-            for chunk in response:
-                if chunk.choices[0].delta.content:
-                    full_response.append(chunk.choices[0].delta.content)
-                    message_placeholder.markdown(f"""
-                        <div class="assistant-message">
-                            <img src="{BOT_AVATAR}" class="assistant-avatar">
-                            <div class="message-content">
-                                {"".join(full_response).strip()}
-                                <div class="response-time">Generating...</div>
+            with st.spinner("AI is thinking..."):
+                start_time = time.time()
+                response = client.chat.completions.create(
+                    model=selected_model,
+                    messages=[{"role": m["role"], "content": m["content"]} 
+                            for m in st.session_state.messages[-5:]],
+                    temperature=0.7,
+                    stream=True
+                )
+
+                full_response = []
+                message_placeholder = st.empty()
+                for chunk in response:
+                    if chunk.choices[0].delta.content:
+                        full_response.append(chunk.choices[0].delta.content)
+                        message_placeholder.markdown(f"""
+                            <div class="assistant-message">
+                                <img src="{BOT_AVATAR}" class="assistant-avatar">
+                                <div class="message-content">
+                                    {"".join(full_response).strip()}
+                                    <div class="response-time">Generating...</div>
+                                </div>
                             </div>
-                        </div>
-                    """, unsafe_allow_html=True)
+                        """, unsafe_allow_html=True)
 
             response_time = time.time() - start_time
             st.session_state.messages.append({"role": "assistant", "content": "".join(full_response).strip()})
@@ -172,8 +198,8 @@ def main():
             st.rerun()
 
         except Exception as e:
-            st.error(f"⚠️ Error: {str(e)}")
-            if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+            st.error(f"⚠️ Oops! Something went wrong: {str(e)}")
+            if st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
 
 if __name__ == "__main__":
