@@ -7,7 +7,7 @@ BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
 MODEL_INFO = {
     "mixtral-8x7b-32768": "High-quality text generation with 8 experts mixture",
     "llama-3.3-70b-versatile": "Large 70B parameter model for complex tasks",
-    "deepseek-r1-distill-llama-70b": "Distilled version optimized for speed"
+    "deepseek-r1-distill-qwen-32b": "Optimized 32B parameter model for fast, high-quality responses"
 }
 
 def inject_custom_css():
@@ -48,7 +48,7 @@ def inject_custom_css():
             border-radius: 50%;
             border: 2px solid var(--primary-color);
             object-fit: cover;
-            animation: shake 0.5s infinite ease-in-out;
+            animation: shake 1.5s infinite ease-in-out;
         }
 
         .message-content {
@@ -74,8 +74,8 @@ def inject_custom_css():
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px); }
-            75% { transform: translateX(2px); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
         }
     </style>
     """, unsafe_allow_html=True)
@@ -83,8 +83,8 @@ def inject_custom_css():
 def get_api_key():
     try:
         return st.secrets["GROQ"]["API_KEY"]
-    except Exception as e:
-        st.error(f"Error accessing API key: Please ensure secrets.toml has [GROQ] section with API_KEY")
+    except:
+        st.error("Error accessing API key: Please ensure secrets.toml has [GROQ] section with API_KEY")
         return None
 
 def main():
@@ -117,12 +117,12 @@ def main():
 
         st.markdown("---")
         st.markdown(f"""
-        <div style='text-align: center; color: #94a3b8; font-size: 0.9rem;'>
-            <p>Developed by <span style='color: var(--primary-color);'>{DEVELOPER}</span></p>
+        <div style='text-align: center; color: #94a3b8; font-size: 1.1rem; padding: 1rem;'>
+            <h3 style='color: var(--primary-color); margin-bottom: 0.5rem;'>Developed by {DEVELOPER}</h3>
             <div style='margin-top: 1rem;'>
-                <a href="mailto:waqaskhos99@gmail.com" style='color: var(--primary-color); text-decoration: none;'>📧 waqaskhos99@gmail.com</a><br>
-                <a href="https://www.linkedin.com/in/waqas-baloch" style='color: var(--primary-color); text-decoration: none;'>🔗 LinkedIn</a><br>
-                <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" style='color: var(--primary-color); text-decoration: none;'>🐙 GitHub</a>
+                <p><a href="mailto:waqaskhos99@gmail.com" style='color: var(--primary-color); text-decoration: none;'><span style='margin-right: 0.5rem;'>📧</span> waqaskhos99@gmail.com</a></p>
+                <p><a href="https://www.linkedin.com/in/waqas-baloch" style='color: var(--primary-color); text-decoration: none;'><span style='margin-right: 0.5rem;'>🔗</span> LinkedIn</a></p>
+                <p><a href="https://github.com/Waqas-Baloch99/AI-Chatbox" style='color: var(--primary-color); text-decoration: none;'><span style='margin-right: 0.5rem;'>🐙</span> GitHub</a></p>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -187,8 +187,8 @@ def main():
             st.session_state.response_times.append(response_time)
             st.rerun()
 
-        except Exception as e:
-            st.error(f"⚠️ Oops! Something went wrong: {str(e)}")
+        except:
+            st.error("⚠️ Oops! Something went wrong")
             if st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
 
