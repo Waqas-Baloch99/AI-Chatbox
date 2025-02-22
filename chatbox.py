@@ -187,8 +187,8 @@ def main():
             st.session_state.response_times.append(response_time)
             st.rerun()
 
-        except:
-            st.error("⚠️ Oops! Something went wrong")
+        except Exception as e:
+            st.error(f"⚠️ Oops! Something went wrong: {str(e)}")
             if st.session_state.messages[-1]["role"] == "user":
                 st.session_state.messages.pop()
 
