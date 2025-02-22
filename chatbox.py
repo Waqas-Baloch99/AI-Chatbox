@@ -1,7 +1,6 @@
 import streamlit as st
 from groq import Groq
 import time
-import os
 
 DEVELOPER = "Waqas Baloch"
 BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
@@ -21,23 +20,71 @@ def inject_custom_css():
             --card-bg: rgba(255, 255, 255, 0.05);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
-        /* Rest of CSS unchanged */
+
+        .main {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: #f1f5f9;
+            padding: 2rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .assistant-message {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .assistant-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            object-fit: cover;
+            animation: shake 0.5s infinite ease-in-out;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .response-time {
+            font-size: 0.75rem;
+            color: var(--primary-color);
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .assistant-message { padding: 1rem; }
+            .assistant-avatar { width: 36px; height: 36px; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
     </style>
     """, unsafe_allow_html=True)
 
 def get_api_key():
     try:
-        # Access nested GROQ section
-        if "GROQ" in st.secrets and "API_KEY" in st.secrets["GROQ"]:
-            return st.secrets["GROQ"]["API_KEY"]
-        # Fallback to direct access (just in case)
-        elif "GROQ_API_KEY" in st.secrets:
-            return st.secrets["GROQ_API_KEY"]
-        else:
-            st.error("No API key found in secrets. Expected format: [GROQ]\nAPI_KEY = 'your-key'")
-            return None
+        return st.secrets["GROQ"]["API_KEY"]
     except Exception as e:
-        st.error(f"Error accessing secrets: {str(e)}")
+        st.error(f"Error accessing API key: Please ensure secrets.toml has [GROQ] section with API_KEY")
         return None
 
 def main():
@@ -48,18 +95,6 @@ def main():
     with col1:
         st.markdown("<h1 style='color: #fff; margin-bottom: 0;'>🤖 AI Chatbox</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: #94a3b8;'>Powered by Groq's cutting-edge LPU technology</p>", unsafe_allow_html=True)
-
-    # Debug info
-    with st.sidebar:
-        st.markdown("<h3>Secrets Debug</h3>", unsafe_allow_html=True)
-        try:
-            if "GROQ" in st.secrets:
-                st.success("GROQ section found in secrets!")
-                st.write("GROQ secrets contents:", {k: "****" if k == "API_KEY" else v for k, v in st.secrets["GROQ"].items()})
-            else:
-                st.warning("No GROQ section found in secrets")
-        except Exception as e:
-            st.error(f"Secrets debug error: {str(e)}")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -83,10 +118,10 @@ def main():
         st.markdown("---")
         st.markdown(f"""
         <div style='text-align: center; color: #94a3b8; font-size: 0.9rem;'>
-            <p>Created by <span style='color: var(--primary-color);'>{DEVELOPER}</span></p>
+            <p>Developed by <span style='color: var(--primary-color);'>{DEVELOPER}</span></p>
             <div style='margin-top: 1rem;'>
-                <a href="mailto:waqaskhos99@gmail.com" style='color: var(--primary-color); text-decoration: none;'>📧 Email</a> •
-                <a href="https://www.linkedin.com/in/waqas-baloch" style='color: var(--primary-color); text-decoration: none;'>🔗 LinkedIn</a> •
+                <a href="mailto:waqaskhos99@gmail.com" style='color: var(--primary-color); text-decoration: none;'>📧 waqaskhos99@gmail.com</a><br>
+                <a href="https://www.linkedin.com/in/waqas-baloch" style='color: var(--primary-color); text-decoration: none;'>🔗 LinkedIn</a><br>
                 <a href="https://github.com/Waqas-Baloch99/AI-Chatbox" style='color: var(--primary-color); text-decoration: none;'>🐙 GitHub</a>
             </div>
         </div>
@@ -116,7 +151,6 @@ def main():
     if prompt := st.chat_input("Ask anything...", key="chat_input"):
         api_key = get_api_key()
         if not api_key:
-            st.error("Cannot proceed without a valid API key. Check secrets configuration.")
             return
 
         try:
