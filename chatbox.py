@@ -7,7 +7,7 @@ BOT_AVATAR = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
 MODEL_INFO = {
     "mixtral-8x7b-32768": "High-quality text generation with 8 experts mixture",
     "llama-3.3-70b-versatile": "Large 70B parameter model for complex tasks",
-    "deepseek-r1-distill-llama-70b-specdec": "Optimized 32B parameter model for fast, high-quality responses"
+    "deepseek-r1-distill-qwen-32b": "Optimized 32B parameter model for fast, high-quality responses"
 }
 
 def inject_custom_css():
